@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import NotificationCenter from './NotificationCenter';
 
 // Mock fetch
@@ -15,9 +15,11 @@ global.fetch = vi.fn(() =>
 );
 
 describe('NotificationCenter Component', () => {
-  it('renders the bell icon', () => {
-    render(<NotificationCenter />);
+  it('renders the bell icon', async () => {
+    await act(async () => {
+      render(<NotificationCenter />);
+    });
     // Simple test to check if the component mounts without crashing
-    expect(document.querySelector('button')).toBeInViewport();
+    expect(document.querySelector('button')).not.toBeNull();
   });
 });
