@@ -7,5 +7,6 @@ export const config = {
   firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
   firebaseClientEmail: process.env.FIREBASE_CLIENT_EMAIL,
   firebasePrivateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  firebaseStorageBucket: process.env.FIREBASE_STORAGE_BUCKET || process.env.FIREBASE_PROJECT_ID + ".appspot.com",
   pythonApiUrl: process.env.PYTHON_API_URL || 'http://127.0.0.1:8000/api/v1',
 };

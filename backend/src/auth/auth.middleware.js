@@ -7,7 +7,10 @@ export const requireAuth = async (req, res, next) => {
       return res.status(401).json({ success: false, error: 'Unauthorized: No token provided' });
     }
 
-    const idToken = authHeader.split('Bearer ')[1];
+    const idToken = authHeader.split('Bearer ')[1].trim();
+    if (!idToken || idToken === 'undefined' || idToken === 'null') {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or missing token' });
+    }
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
     
     req.user = decodedToken;

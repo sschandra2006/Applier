@@ -1,0 +1,14 @@
+{
+  "name": "applier-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npx -y concurrently -c \"cyan.bold,green.bold,magenta.bold\" -n \"FRONTEND,BACKEND,AI-SVC\" \"npm run start:frontend\" \"npm run start:backend\" \"npm run start:ai\"",
+    "start:backend": "cd backend && node server.js",
+    "start:frontend": "cd frontend && npm run dev",
+    "start:ai": "cd ai-service && venv\\Scripts\\python main.py"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

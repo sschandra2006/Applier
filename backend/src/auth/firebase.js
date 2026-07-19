@@ -11,6 +11,7 @@ if (!getApps().length) {
         clientEmail: config.firebaseClientEmail,
         privateKey: config.firebasePrivateKey,
       }),
+      storageBucket: config.firebaseStorageBucket,
     });
   } catch (error) {
     console.log('Firebase Admin skipping initialization: Provide valid credentials in .env');
