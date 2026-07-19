@@ -16,8 +16,7 @@ export const requireAuth = async (req, res, next) => {
     req.user = decodedToken;
     next();
   } catch (error) {
-    console.error('Auth Middleware Error:', error);
-    return res.status(401).json({ success: false, error: 'Unauthorized: Invalid token' });
+    next(error);
   }
 };
 
@@ -31,6 +30,6 @@ export const requireAdmin = async (req, res, next) => {
       return res.status(403).json({ success: false, error: 'Forbidden: Admin access required' });
     }
   } catch (error) {
-    return res.status(403).json({ success: false, error: 'Forbidden' });
+    next(error);
   }
 };

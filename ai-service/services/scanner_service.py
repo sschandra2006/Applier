@@ -1,6 +1,8 @@
 from services.browser_manager import BrowserManager
 from bs4 import BeautifulSoup
 import base64
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
+from fastapi import HTTPException
 
 async def scan_url(url: str):
     context = await BrowserManager.create_context()
@@ -26,12 +28,17 @@ async def scan_url(url: str):
             }
             
             for input_tag in form.find_all(['input', 'textarea', 'select']):
+                # Extract and truncate attributes to prevent prompt blowout from embedded base64 or massive strings
+                name_attr = input_tag.get('name', '')
+                id_attr = input_tag.get('id', '')
+                placeholder_attr = input_tag.get('placeholder', '')
+                
                 input_info = {
                     "tag": input_tag.name,
                     "type": input_tag.get('type', 'text') if input_tag.name == 'input' else None,
-                    "name": input_tag.get('name', ''),
-                    "id": input_tag.get('id', ''),
-                    "placeholder": input_tag.get('placeholder', '')
+                    "name": name_attr[:100] if isinstance(name_attr, str) else str(name_attr)[:100],
+                    "id": id_attr[:100] if isinstance(id_attr, str) else str(id_attr)[:100],
+                    "placeholder": placeholder_attr[:100] if isinstance(placeholder_attr, str) else str(placeholder_attr)[:100]
                 }
                 form_info["inputs"].append(input_info)
                 
@@ -43,6 +50,10 @@ async def scan_url(url: str):
             "forms": forms_data,
             "screenshot": f"data:image/png;base64,{screenshot_b64}"
         }
+    except PlaywrightTimeoutError as e:
+        raise HTTPException(status_code=408, detail=f"Playwright Timeout while scanning {url}. The page took too long to load.")
+    except PlaywrightError as e:
+        raise HTTPException(status_code=400, detail=f"Playwright Browser Error scanning {url}: {e.message}")
     finally:
         await page.close()
         await context.close()

@@ -2,7 +2,7 @@ import { Application } from '../tracking/application.model.js';
 import { AutomationJob } from '../automation/automation.model.js';
 // If User model doesn't exist, we skip counting users for now or use firebase admin
 
-export const getSystemStats = async (req, res) => {
+export const getSystemStats = async (req, res, next) => {
   try {
     const totalApplications = await Application.countDocuments();
     const activeJobs = await AutomationJob.countDocuments({ status: { $in: ['RUNNING', 'PAUSED_OTP'] } });
@@ -19,11 +19,11 @@ export const getSystemStats = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const getAutomationQueue = async (req, res) => {
+export const getAutomationQueue = async (req, res, next) => {
   try {
     const jobs = await AutomationJob.find()
       .populate('workflowId', 'name url')
@@ -32,6 +32,6 @@ export const getAutomationQueue = async (req, res) => {
       
     res.status(200).json({ success: true, data: jobs });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };

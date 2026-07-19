@@ -48,8 +48,8 @@ async def ingest_document(collection_name: str = Form(...), file: UploadFile = F
         )
         
         return {"status": "success", "message": f"Ingested {len(documents)} chunks from {file.filename}"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        raise
 
 @router.get("/query")
 async def query_knowledge_base(collection_name: str, q: str, top_k: int = 3):
@@ -62,5 +62,5 @@ async def query_knowledge_base(collection_name: str, q: str, top_k: int = 3):
         )
         
         return {"results": results}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        raise

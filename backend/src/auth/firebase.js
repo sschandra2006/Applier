@@ -4,23 +4,19 @@ import { getStorage } from 'firebase-admin/storage';
 import { config } from '../config/env.js';
 
 if (!getApps().length) {
-  try {
-    initializeApp({
-      credential: cert({
-        projectId: config.firebaseProjectId,
-        clientEmail: config.firebaseClientEmail,
-        privateKey: config.firebasePrivateKey,
-      }),
-      storageBucket: config.firebaseStorageBucket,
-    });
-  } catch (error) {
-    console.log('Firebase Admin skipping initialization: Provide valid credentials in .env');
-  }
+  initializeApp({
+    credential: cert({
+      projectId: config.firebaseProjectId,
+      clientEmail: config.firebaseClientEmail,
+      privateKey: config.firebasePrivateKey,
+    }),
+    storageBucket: config.firebaseStorageBucket,
+  });
 }
 
 const admin = {
-  auth: () => getApps().length ? getAuth() : { verifyIdToken: async () => ({}) },
-  storage: () => getApps().length ? getStorage() : { bucket: () => ({ file: () => ({ save: async () => {}, makePublic: async () => {} }) }) }
+  auth: () => getAuth(),
+  storage: () => getStorage()
 };
 
 export const firebaseAdmin = admin;

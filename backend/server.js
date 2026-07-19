@@ -5,41 +5,69 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
 import authRoutes from './src/auth/auth.routes.js';
-import workflowRoutes from './src/workflow/workflow.routes.js';
+import usersRoutes from './src/users/users.routes.js';
 import interviewRoutes from './src/interview/interview.routes.js';
 import documentsRoutes from './src/documents/documents.routes.js';
-import automationRoutes from './src/automation/automation.routes.js';
 import trackingRoutes from './src/tracking/tracking.routes.js';
-import notificationRoutes from './src/notifications/notifications.routes.js';
-import adminRoutes from './src/admin/admin.routes.js';
-import aiLearningRoutes from './src/ai-learning/ai-learning.routes.js';
+import automationRoutes from './src/automation/automation.routes.js';
+import workflowRoutes from './src/workflow/workflow.routes.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { logger } from './src/config/logger.js';
+import pinoHttp from 'pino-http';
+import { correlationIdMiddleware } from './src/middleware/correlationId.middleware.js';
+import { globalErrorHandler } from './src/error/error.middleware.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Phase 12: Process & Async Audit (Prevent Zombie Crashes)
+process.on('uncaughtException', (err) => {
+  logger.fatal({ err }, 'Uncaught Exception detected! Shutting down immediately.');
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.fatal({ err: reason }, 'Unhandled Promise Rejection detected! Shutting down immediately.');
+  process.exit(1);
+});
 
 const app = express();
 const PORT = config.port;
 
+app.use(correlationIdMiddleware);
+app.use(pinoHttp({ logger, autoLogging: false }));
+
+// CORS must be before rate limit and helmet so that rejected requests still have CORS headers
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173'],
+  credentials: true
+}));
+
 // Security Middleware
-app.use(helmet());
+// Temporarily disable helmet's crossOriginResourcePolicy for /uploads to be accessible
+app.use(helmet({ crossOriginResourcePolicy: false }));
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 1000, // Increased limit for prototyping/polling
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/api/', apiLimiter);
 
-app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// Serve static uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/workflows', workflowRoutes);
+app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/interview', interviewRoutes);
 app.use('/api/v1/documents', documentsRoutes);
-app.use('/api/v1/automation', automationRoutes);
 app.use('/api/v1/tracking', trackingRoutes);
-app.use('/api/v1/notifications', notificationRoutes);
-app.use('/api/v1/admin', adminRoutes);
-app.use('/api/v1/ai-learning', aiLearningRoutes);
+app.use('/api/v1/automation', automationRoutes);
+app.use('/api/v1/workflow', workflowRoutes);
 
 // Basic Route
 app.get('/api/v1/health', (req, res) => {
@@ -52,16 +80,19 @@ const connectDB = async () => {
     const mongoUri = config.mongoUri;
     if (mongoUri) {
         await mongoose.connect(mongoUri);
-        console.log('MongoDB Connected...');
+        logger.info('MongoDB Connected...');
     } else {
-        console.log('No MONGO_URI provided, skipping DB connection for now.');
+        logger.warn('No MONGO_URI provided, skipping DB connection for now.');
     }
   } catch (error) {
-    console.error('Database connection error:', error);
+    logger.fatal({ err: error }, 'Database connection failed at startup (Fail-Fast)');
+    process.exit(1);
   }
 };
 
+app.use(globalErrorHandler);
+
 app.listen(PORT, async () => {
   await connectDB();
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });

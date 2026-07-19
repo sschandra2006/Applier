@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { requireAuth } from '../auth/auth.middleware.js';
+import { requireJwtAuth } from '../auth/jwt.middleware.js';
 import { startInterviewController, processMessageController } from './interview.controller.js';
 
 const router = Router();
 
-router.use(requireAuth);
+router.use(requireJwtAuth);
 router.post('/start', startInterviewController);
 router.post('/message', processMessageController);
 

@@ -1,12 +1,18 @@
-import google.generativeai as genai
-from core.config import settings
+from core.llm_service import llm_service
 from .base import DocumentProcessor
 from typing import Dict, Any
 import httpx
 import json
+from pydantic import BaseModel
+from typing import Dict, Any
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.5-flash')
+class ExtractedField(BaseModel):
+    value: str
+    confidence: float
+
+class DocumentExtraction(BaseModel):
+    documentType: str
+    extracted_fields: Dict[str, ExtractedField]
 
 class GeminiVisionProcessor(DocumentProcessor):
     async def extract_data(self, file_url: str, expected_type: str, mime_type: str) -> Dict[str, Any]:
@@ -37,13 +43,9 @@ class GeminiVisionProcessor(DocumentProcessor):
         }}
         """
         
-        response = model.generate_content(
-            [image_part, prompt],
-            generation_config=genai.GenerationConfig(
-                response_mime_type="application/json",
-                temperature=0.1
-            ),
+        schema_obj = llm_service.generate_safe_json(
+            prompt=prompt,
+            schema_model=DocumentExtraction,
+            temperature=0.1
         )
-        
-        result = json.loads(response.text)
-        return result
+        return schema_obj.model_dump()

@@ -14,31 +14,40 @@ const transporter = nodemailer.createTransport({
 export const sendNotification = async (userId, title, message, type = 'INFO', actionData = {}, email = null) => {
   try {
     // 1. Create In-App Notification (Database)
-    const notification = await Notification.create({
-      userId,
-      title,
-      message,
-      type,
-      actionData
-    });
+    let notification = null;
+    if (userId) {
+      notification = await Notification.create({
+        userId,
+        title,
+        message,
+        type,
+        actionData
+      });
+    }
 
     // 2. Send Email (if email provided)
     if (email) {
-      await transporter.sendMail({
-        from: '"Applier Platform" <no-reply@applier.ai>',
-        to: email,
-        subject: title,
-        text: message
-      });
-      // In a real app, log nodemailer.getTestMessageUrl(info)
+      console.log(`\n========== EMAIL INTERCEPTED (DEV MODE) ==========`);
+      console.log(`To: ${email}`);
+      console.log(`Subject: ${title}`);
+      console.log(`Body: ${message}`);
+      console.log(`==================================================\n`);
+      
+      try {
+        await transporter.sendMail({
+          from: '"Applier Platform" <no-reply@applier.ai>',
+          to: email,
+          subject: title,
+          text: message
+        });
+      } catch (emailError) {
+        console.warn('Nodemailer failed to send email via Ethereal (Invalid credentials). Email was logged to console above.');
+      }
     }
-
-    // 3. (Future) Push Notification via Firebase Cloud Messaging
-    // const fcmToken = await getUserFCMToken(userId);
-    // if (fcmToken) admin.messaging().send(...)
 
     return notification;
   } catch (error) {
     console.error('Notification Error:', error);
   }
 };
+

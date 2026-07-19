@@ -2,7 +2,8 @@ import { InterviewState } from './interview-state.model.js';
 import { Workflow } from '../workflow/workflow.model.js';
 import { Conversation } from '../chat/conversation.model.js';
 import { Message } from '../chat/message.model.js';
-
+import { Document } from '../documents/document.model.js';
+import { internalApi } from '../config/axios.js';
 import { config } from '../config/env.js';
 
 const PYTHON_API_URL = config.pythonApiUrl;
@@ -11,11 +12,11 @@ export const startInterview = async (userId, workflowId) => {
   const workflow = await Workflow.findById(workflowId);
   if (!workflow) throw new Error('Workflow not found');
   
-  // Flatten all fields to find pending ones
+  // Flatten all fields to find pending ones (Updated to Canonical Schema: pages -> steps)
   const pendingFields = [];
-  workflow.schemaDefinition.steps.forEach(step => {
-    step.fields.forEach(field => {
-      if (field.required) pendingFields.push(field.name);
+  workflow.schemaDefinition?.pages?.forEach(page => {
+    page.steps?.forEach(step => {
+      if (step.required && step.id) pendingFields.push(step.id);
     });
   });
   
@@ -52,26 +53,35 @@ export const processUserMessage = async (conversationId, userId, content) => {
   // 1. Save user message
   await Message.create({ conversationId, sender: 'USER', content });
   
+  // 1.5 Get Document Vault context for smart reuse
+  const documents = await Document.find({ userId });
+  const vaultContext = documents.map(doc => ({
+      id: doc._id,
+      type: doc.type,
+      name: doc.fileName
+  }));
+  
   // 2. Prepare payload for Python AI
   const payload = {
     state: {
       answers: Object.fromEntries(state.answers || new Map()),
       pendingFields: state.pendingFields,
       completedFields: state.completedFields,
-      currentStep: state.currentStep
+      currentStep: state.currentStep,
+      availableDocuments: vaultContext
     },
     lastUserMessage: content
   };
   
-  // 3. Call Python AI
-  const res = await fetch(`${PYTHON_API_URL}/interview/turn`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-  if (!res.ok) throw new Error('AI Service failed');
-  const result = await res.json();
-  const aiOutput = result.data;
+  // 3. Call Python AI via internalApi
+  let aiOutput;
+  try {
+    const res = await internalApi.post(`${PYTHON_API_URL}/interview/turn`, payload);
+    aiOutput = res.data.data;
+  } catch (error) {
+    console.error(`[InterviewService] AI Service failed:`, error.message);
+    throw new Error(`AI Service failed: ${error.message}`);
+  }
   
   // 4. Update Node State
   if (aiOutput.extracted_data && !aiOutput.requiresClarification) {

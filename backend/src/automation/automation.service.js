@@ -4,6 +4,7 @@ import { admin } from '../auth/firebase.js';
 import { Application } from '../tracking/application.model.js';
 import { sendNotification } from '../notifications/notifications.service.js';
 import { User } from '../users/user.model.js';
+import { AutomationJob } from './automation.model.js';
 import { AILearning } from '../ai-learning/ai-learning.model.js';
 import axios from 'axios';
 
@@ -112,31 +113,35 @@ export const updateJobStatus = async (jobId, status, message, additionalData = {
       user?.email
     );
   } else if (status === 'FAILED' && job) {
-    // TRIGGER PHASE 17 AI LEARNING
+    console.log('Automation Job Failed.', message);
+    
+    // Trigger Failure Analyzer
     try {
-      const response = await axios.post(`${PYTHON_API_URL}/analyze-failure`, {
-        logs: job.logs.slice(-20), // Send last 20 logs
-        url: 'https://unknown-target.com' // Should fetch from workflow in real app
-      });
-      
-      const insight = response.data;
-      if (insight) {
-        await AILearning.create({
-          workflowId: job.workflowId,
-          jobId: job._id,
-          targetUrl: insight.targetUrl || 'Unknown',
-          errorSignature: insight.rootCause.substring(0, 50),
-          rawLogs: job.logs.slice(-5),
-          insight: {
-            rootCause: insight.rootCause,
-            suggestedFix: insight.suggestedFix,
-            confidence: insight.confidence,
-            updatedSelector: insight.updatedSelector
-          }
+        const workflowUrl = additionalData.url || "Unknown URL";
+        const logMessages = job.logs.map(l => l.message);
+        logMessages.push(message);
+        
+        const response = await fetch(`${PYTHON_API_URL}/analyze-failure`, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ logs: logMessages, url: workflowUrl })
         });
-      }
-    } catch (error) {
-      console.error('Failed to trigger AI Learning analyzer:', error.message);
+        
+        if (response.ok) {
+           const insight = await response.json();
+           await AILearning.create({
+              workflowId: job.workflowId,
+              errorType: insight.rootCause || 'Unknown',
+              message: message,
+              suggestedFix: insight.suggestedFix,
+              alternativeSelectors: insight.updatedSelector ? [insight.updatedSelector] : [],
+              confidence: insight.confidence,
+              status: 'PENDING_REVIEW'
+           });
+           console.log('AI Learning record created for failure.');
+        }
+    } catch (err) {
+        console.error("Failed to analyze failure with AI", err.message);
     }
   }
 };

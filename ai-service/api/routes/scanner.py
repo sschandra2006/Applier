@@ -15,5 +15,5 @@ async def scan_endpoint(request: ScanRequest):
     try:
         result = await scan_url(request.url)
         return {"status": "success", "data": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to scan URL: {str(e)}")
+    except Exception:
+        raise

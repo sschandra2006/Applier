@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import { generateWorkflow, getWorkflows, getMarketplaceWorkflows } from './workflow.controller.js';
-import { requireAuth } from '../auth/auth.middleware.js';
+import { requireJwtAuth } from '../auth/jwt.middleware.js';
+import { analyzeUrl } from './workflow.controller.js';
 
 const router = Router();
 
-router.use(requireAuth);
+router.use(requireJwtAuth);
 
-router.get('/marketplace', getMarketplaceWorkflows);
-router.post('/generate', generateWorkflow);
-router.get('/', getWorkflows);
+router.post('/analyze', analyzeUrl);
 
 export default router;

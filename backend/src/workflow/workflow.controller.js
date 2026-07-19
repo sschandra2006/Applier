@@ -1,46 +1,82 @@
-import { generateAndSaveWorkflow } from './workflow.service.js';
 import { Workflow } from './workflow.model.js';
-import axios from 'axios';
-
+import { startInterview } from '../interview/interview.service.js';
+import crypto from 'crypto';
 import { config } from '../config/env.js';
+import { internalApi } from '../config/axios.js';
 
-const PYTHON_API_URL = config.pythonApiUrl;
+const PYTHON_API_URL = config.pythonApiUrl || 'http://localhost:8000/api/v1';
 
-export const generateWorkflow = async (req, res) => {
+export const analyzeUrl = async (req, res, next) => {
   try {
-    const { url } = req.body;
-    if (!url) return res.status(400).json({ success: false, message: 'URL is required' });
+    const { targetUrl } = req.body;
+    const userId = req.user._id;
+
+    if (!targetUrl) {
+      return res.status(400).json({ success: false, error: 'Target URL is required' });
+    }
+
+    const urlHash = crypto.createHash('sha256').update(targetUrl).digest('hex');
+    let workflow = await Workflow.findOne({ urlHash });
     
-    const workflow = await generateAndSaveWorkflow(url);
-    res.status(201).json({ success: true, data: workflow });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
+    if (workflow) {
+      console.log(`[Workflow Cache Hit] Reuse existing workflow for: ${targetUrl}`);
+    } else {
+      console.log(`[Workflow Cache Miss] Scanning new URL: ${targetUrl}`);
+      // 1. Call Python Scanner
+      const scanResponse = await internalApi.post(`${PYTHON_API_URL}/scanner/scan`, { url: targetUrl }, {
+        headers: { 'x-correlation-id': req.correlationId }
+      });
+      const scannedData = scanResponse.data.data;
 
-export const getWorkflows = async (req, res) => {
-  try {
-    const workflows = await Workflow.find();
-    res.status(200).json({ success: true, data: workflows });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
+      // 2. Call Python Workflow Generator
+      console.log(`[Workflow] Generating workflow schema for: ${targetUrl}`);
+      const genResponse = await internalApi.post(`${PYTHON_API_URL}/workflow/generate`, { form_data: scannedData }, {
+        headers: { 'x-correlation-id': req.correlationId }
+      });
+      const schema = genResponse.data.schema;
 
-export const getMarketplaceWorkflows = async (req, res) => {
-  try {
-    const workflows = await Workflow.find({ isPublic: true });
-    // If empty, return some dummies for the marketplace UI
-    if (workflows.length === 0) {
-      return res.status(200).json({
-        success: true,
-        data: [
-          { id: '1', name: 'Scholarship App', description: 'Apply for scholarship', category: 'Education', estimatedTime: '5m', successRate: '99%', url: 'https://example.com' }
-        ]
+      // 3. Save Workflow to MongoDB
+      workflow = await Workflow.create({
+        userId,
+        name: schema.name || 'Generated Workflow',
+        url: targetUrl,
+        urlHash: urlHash,
+        schemaDefinition: schema
       });
     }
-    res.status(200).json({ success: true, data: workflows });
+
+    // 4. Start Interview Process
+    console.log(`[Workflow] Starting AI Interview for Workflow: ${workflow._id}`);
+    const { state, conversation } = await startInterview(userId, workflow._id);
+
+    // Get the first AI message from the conversation history
+    const firstAiMessage = {
+       sender: 'AI',
+       content: 'Hi, I have analyzed the application. I have a few questions for you before we submit.'
+    };
+
+    res.status(201).json({ 
+      success: true, 
+      data: {
+        workflow,
+        interviewStateId: state._id,
+        conversationId: conversation._id,
+        firstMessage: firstAiMessage
+      } 
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Workflow analysis error [Traceback]:', error.stack);
+    if (error.response) {
+      console.error('Python API Error Data:', JSON.stringify(error.response.data, null, 2));
+    }
+    
+    // Provide a structured, safe error payload to the frontend
+    res.status(500).json({ 
+      success: false, 
+      error: 'WORKFLOW_GENERATION_FAILED',
+      message: 'An error occurred while generating the workflow.',
+      details: error.response?.data?.detail || error.message,
+      requestId: req.id || 'N/A'
+    });
   }
 };

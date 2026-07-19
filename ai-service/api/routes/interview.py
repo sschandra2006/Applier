@@ -14,5 +14,5 @@ async def interview_turn_endpoint(request: InterviewRequest):
     try:
         result = await process_interview_turn(request.state, request.lastUserMessage)
         return {"status": "success", "data": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        raise

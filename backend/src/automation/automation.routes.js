@@ -1,11 +1,14 @@
 import { Router } from 'express';
-import { requireAuth } from '../auth/auth.middleware.js';
-import { startAutomationController, statusWebhookController } from './automation.controller.js';
+import { requireJwtAuth } from '../auth/jwt.middleware.js';
+import { executeAutomationController, resumeAutomationController, statusWebhookController, getStatusController } from './automation.controller.js';
 
 const router = Router();
 
-router.post('/webhook', statusWebhookController); // Python webhook
-router.use(requireAuth);
-router.post('/start', startAutomationController);
+router.post('/webhook', statusWebhookController); // Python webhook (no auth for now)
+
+router.use(requireJwtAuth);
+router.get('/status/:jobId', getStatusController);
+router.post('/execute', executeAutomationController);
+router.post('/resume', resumeAutomationController);
 
 export default router;

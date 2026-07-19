@@ -4,7 +4,11 @@ const documentSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   workflowId: { type: mongoose.Schema.Types.ObjectId, ref: 'Workflow' },
   
-  type: { type: String, required: true },
+  type: { 
+    type: String, 
+    required: true,
+    enum: ['AADHAAR', 'PAN', 'PASSPORT', 'SSC_MEMO', 'INTERMEDIATE', 'DEGREE', 'INCOME_CERT', 'CASTE_CERT', 'RESIDENCE', 'PHOTO', 'SIGNATURE', 'PASSBOOK', 'RESUME', 'OTHER']
+  },
   fileName: { type: String, required: true },
   fileUrl: { type: String, required: true },
   mimeType: { type: String, required: true },

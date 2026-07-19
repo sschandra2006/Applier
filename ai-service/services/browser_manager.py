@@ -1,8 +1,11 @@
+import asyncio
 from playwright.async_api import async_playwright, Page, BrowserContext, Browser
 
 class BrowserManager:
     _playwright = None
     _browser: Browser = None
+    _context: BrowserContext = None
+    _page: Page = None
 
     @classmethod
     async def get_browser(cls) -> Browser:
@@ -21,7 +24,19 @@ class BrowserManager:
         )
 
     @classmethod
+    async def get_page(cls) -> Page:
+        """Returns the active page, initializing browser and context if needed."""
+        if not cls._page or cls._page.is_closed():
+            if not cls._context:
+                cls._context = await cls.create_context()
+            cls._page = await cls._context.new_page()
+        return cls._page
+
+    @classmethod
     async def close_browser(cls):
+        if cls._context:
+            await cls._context.close()
+            cls._context = None
         if cls._browser:
             await cls._browser.close()
             cls._browser = None

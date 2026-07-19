@@ -13,6 +13,6 @@ class ExtractRequest(BaseModel):
 async def extract_document(request: ExtractRequest):
     try:
         result = await manager.process(request.fileUrl, request.expectedType, request.mimeType)
-        return {"status": "success", "data": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"status": "success", "message": f"Saved document to {file_path}", "docId": str(doc.id)}
+    except Exception:
+        raise

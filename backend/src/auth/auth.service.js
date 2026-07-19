@@ -1,5 +1,13 @@
 import { User } from '../users/user.model.js';
 import { Profile } from '../users/profile.model.js';
+import jwt from 'jsonwebtoken';
+import { config } from '../config/env.js';
+
+export const generateToken = (userId) => {
+  return jwt.sign({ userId }, config.jwtSecret, {
+    expiresIn: '7d', // 7 days expiration
+  });
+};
 
 export const syncUserWithFirebase = async (firebaseUser) => {
   const { uid, email } = firebaseUser;
