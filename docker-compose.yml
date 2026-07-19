@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: applier-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: applier-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/applier
+      - PYTHON_API_URL=http://ai-service:8000/api/v1
+    depends_on:
+      - mongodb
+
+  ai-service:
+    build: ./ai-service
+    container_name: applier-ai-service
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_API_URL=http://backend:5000/api/v1
+      # Note: GEMINI_API_KEY must be passed via .env or shell env
+    volumes:
+      - ./ai-service:/app
+
+  frontend:
+    build: ./frontend
+    container_name: applier-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:

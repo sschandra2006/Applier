@@ -1,0 +1,63 @@
+# === Node.js / React (Frontend & Backend) ===
+node_modules/
+dist/
+build/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+.parcel-cache
+
+# === Python (AI Service) ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+.venv/
+.env/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+
+# === Environment Variables / Secrets ===
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# === Logs & Databases ===
+*.log
+logs/
+npm-debug.log
+*.sqlite
+*.db
+
+# === OS Generated Files ===
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# === Editor / IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.settings/
+
+# === Project Specific (Applier) ===
+# Ignored anything inside these if generated dynamically
+backend/receipts/
+ai-service/logs/
+backend/node_modules/
