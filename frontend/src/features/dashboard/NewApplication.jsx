@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, ShieldAlert, MessageSquare, Loader2, Send, CheckCircle2, Paperclip } from 'lucide-react';
+import { Play, ShieldAlert, MessageSquare, Loader2, Send, CheckCircle2, Paperclip, AlertTriangle } from 'lucide-react';
 import { 
   analyzeUrlApi, 
   sendInterviewMessageApi, 
@@ -14,8 +14,10 @@ export default function NewApplication() {
   const [messages, setMessages] = useState([{ sender: 'AI', content: 'Hello! I am Applier AI. Please paste the application URL to begin.' }]);
   const [input, setInput] = useState('');
   
-  // State Machine: Idle -> ANALYZING -> INTERVIEWING -> READY_TO_EXECUTE -> RUNNING -> PAUSED_* -> COMPLETED/FAILED
+  // State Machine: Idle -> ANALYZING -> INTERVIEWING -> READY_TO_EXECUTE -> RUNNING -> PAUSED_* -> COMPLETED / FAILED
   const [status, setStatus] = useState('Idle');
+  const [progress, setProgress] = useState({ currentStep: 0, totalSteps: 0 });
+  const [errorDetails, setErrorDetails] = useState(null);
   
   // Tracking IDs
   const [conversationId, setConversationId] = useState(null);
@@ -47,6 +49,12 @@ export default function NewApplication() {
         if (data.success) {
           const job = data.data;
           setStatus(job.status);
+          if (job.progress) {
+             setProgress(job.progress);
+          }
+          if (job.status === 'FAILED') {
+             setErrorDetails(job.errorDetails || 'Automation execution failed.');
+          }
           
           if (job.status === 'PAUSED_OTP' || job.status === 'PAUSED_CAPTCHA') {
              const lastLog = job.logs[job.logs.length - 1]?.message || 'Action required.';
@@ -55,9 +63,9 @@ export default function NewApplication() {
              }
           }
           if (job.logs && job.logs.length > 0) {
-             const latestLog = job.logs[job.logs.length - 1];
-             if (latestLog.additionalData?.base64Receipt) {
-                setBrowserPreview(`data:image/png;base64,${latestLog.additionalData.base64Receipt}`);
+             const latestLogWithReceipt = [...job.logs].reverse().find(l => l.additionalData?.base64Receipt);
+             if (latestLogWithReceipt) {
+                setBrowserPreview(`data:image/png;base64,${latestLogWithReceipt.additionalData.base64Receipt}`);
              }
           }
         }
@@ -76,6 +84,7 @@ export default function NewApplication() {
     setMessages(prev => [...prev, { sender: 'AI', content: 'I am scanning the website, extracting the form structure, and generating an application workflow... This may take a few seconds.' }]);
     setStatus('ANALYZING');
     setIsTyping(true);
+    setErrorDetails(null);
     
     try {
       const res = await analyzeUrlApi(url);
@@ -90,8 +99,8 @@ export default function NewApplication() {
     } catch (err) {
       console.error(err);
       let errorMessage = "Failed to analyze the application form.";
-      if (err.response?.data?.details?.detail) {
-         errorMessage = err.response.data.details.detail;
+      if (err.response?.data?.details?.originalError) {
+         errorMessage = err.response.data.details.originalError;
       } else if (err.response?.data?.error) {
          errorMessage = err.response.data.error;
       } else if (err.message) {
@@ -112,7 +121,7 @@ export default function NewApplication() {
     setInput('');
     setIsTyping(true);
     
-    // 1. If Execution is paused for OTP
+    // 1. If Execution is paused for OTP/CAPTCHA
     if (status === 'PAUSED_OTP' || status === 'PAUSED_CAPTCHA') {
       try {
         await resumeAutomationApi(jobId, { otp: userMessage.content, captcha: userMessage.content });
@@ -139,7 +148,13 @@ export default function NewApplication() {
         }
       } catch (e) {
         console.error(e);
-        setMessages(prev => [...prev, { sender: 'AI', content: "I had trouble processing that. Could you repeat?" }]);
+        let errorMsg = "I had trouble processing that. Could you repeat?";
+        if (e.response?.data?.error?.message) {
+            errorMsg = `System Error: ${e.response.data.error.message}`;
+        } else if (e.response?.data?.error) {
+            errorMsg = typeof e.response.data.error === 'string' ? e.response.data.error : JSON.stringify(e.response.data.error);
+        }
+        setMessages(prev => [...prev, { sender: 'AI', content: errorMsg }]);
       } finally {
         setIsTyping(false);
       }
@@ -204,6 +219,7 @@ export default function NewApplication() {
     } catch (e) {
       console.error(e);
       setStatus('FAILED');
+      setErrorDetails('Execution failed to initialize.');
       setMessages(prev => [...prev, { sender: 'AI', content: 'Execution failed to start.' }]);
     }
   };
@@ -306,16 +322,24 @@ export default function NewApplication() {
             <ShieldAlert size={18} />
             Execution Monitor
           </h2>
-          <span className={`text-xs px-2 py-1 rounded font-mono ${
-             ['RUNNING', 'ANALYZING'].includes(status) ? 'bg-blue-500/10 text-blue-600' :
-             status === 'INTERVIEWING' ? 'bg-purple-500/10 text-purple-600' :
-             status === 'READY_TO_EXECUTE' ? 'bg-green-500/10 text-green-600' :
-             status.startsWith('PAUSED') ? 'bg-amber-500/10 text-amber-600' :
-             status === 'COMPLETED' ? 'bg-green-500/10 text-green-600' :
-             'bg-muted text-muted-foreground'
-          }`}>
-             {status}
-          </span>
+          <div className="flex items-center gap-2">
+            {progress.totalSteps > 0 && (
+              <span className="text-xs text-muted-foreground font-mono">
+                Step {progress.currentStep}/{progress.totalSteps}
+              </span>
+            )}
+            <span className={`text-xs px-2 py-1 rounded font-mono ${
+               ['RUNNING', 'ANALYZING'].includes(status) ? 'bg-blue-500/10 text-blue-600' :
+               status === 'INTERVIEWING' ? 'bg-purple-500/10 text-purple-600' :
+               status === 'READY_TO_EXECUTE' ? 'bg-green-500/10 text-green-600' :
+               status.startsWith('PAUSED') ? 'bg-amber-500/10 text-amber-600' :
+               status === 'COMPLETED' ? 'bg-green-500/10 text-green-600' :
+               status === 'FAILED' ? 'bg-red-500/10 text-red-600' :
+               'bg-muted text-muted-foreground'
+            }`}>
+               {status}
+            </span>
+          </div>
         </div>
         <div className="flex-1 p-6 flex flex-col items-center justify-center bg-muted/10 relative">
            
@@ -342,12 +366,21 @@ export default function NewApplication() {
                 <p className="font-medium text-lg">All Fields Gathered</p>
                 <p className="text-sm mt-2 opacity-80">Ready to deploy automation engine.</p>
               </div>
+           ) : status === 'FAILED' ? (
+              <div className="text-center text-red-600 max-w-sm p-4 rounded-lg bg-red-50 border border-red-200">
+                <AlertTriangle size={48} className="mx-auto mb-3 text-red-500" />
+                <p className="font-medium text-base text-red-700">Execution Failed</p>
+                <p className="text-xs mt-2 text-red-600 font-mono break-words">{errorDetails || 'An unexpected error occurred during execution.'}</p>
+              </div>
            ) : browserPreview ? (
               <img src={browserPreview} alt="Browser state" className="max-w-full max-h-full object-contain rounded border border-border shadow-sm" />
            ) : (
               <div className="text-center text-muted-foreground animate-pulse">
                 <Loader2 size={32} className="animate-spin mx-auto mb-4 text-primary" />
                 <p className="font-medium text-sm">Browser Engine Active...</p>
+                {progress.totalSteps > 0 && (
+                   <p className="text-xs mt-1 font-mono text-primary">Executing Step {progress.currentStep} of {progress.totalSteps}</p>
+                )}
                 <p className="text-xs mt-2 opacity-70">Executing workflow steps.</p>
               </div>
            )}

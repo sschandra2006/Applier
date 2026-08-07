@@ -45,12 +45,20 @@ export const globalErrorHandler = (err, req, res, next) => {
     message = 'Authentication failed. Please log in again.';
   }
   
+  const details = err.details || {};
+  if (!details.stack) {
+      details.stack = err.stack;
+  }
+  if (!details.name) {
+      details.name = err.name;
+  }
+  
   res.status(statusCode).json({
     success: false,
     error: {
       code: statusCode >= 500 ? 'INTERNAL_SERVER_ERROR' : code,
       message: message,
-      details: err.details || null,
+      details: details,
       requestId: req.correlationId,
       timestamp: new Date().toISOString(),
       retryable: err.retryable || false

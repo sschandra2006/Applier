@@ -3,4 +3,8 @@ uvicorn
 google-generativeai
 python-dotenv
 pydantic
-playwright
+tenacity
+json_repair
+beautifulsoup4
+requests
+chromadb

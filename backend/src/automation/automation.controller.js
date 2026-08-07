@@ -1,9 +1,7 @@
 import { AutomationJob } from './automation.model.js';
-import { updateJobStatus, startAutomation } from './automation.service.js';
+import { updateJobStatus, startAutomation, saveAndStartPlan, resumePlan } from './automation.service.js';
 import { internalApi } from '../config/axios.js';
 import { config } from '../config/env.js';
-
-const PYTHON_API_URL = config.pythonApiUrl || 'http://localhost:8000/api/v1';
 
 export const executeAutomationController = async (req, res, next) => {
   try {
@@ -24,21 +22,33 @@ export const executeAutomationController = async (req, res, next) => {
 
 export const resumeAutomationController = async (req, res, next) => {
   try {
-    const { jobId, answers, state, workflow } = req.body;
+    const { jobId, answers, otp, captcha, userInput } = req.body;
 
-    await AutomationJob.findByIdAndUpdate(jobId, { status: 'RUNNING' });
+    if (!jobId) {
+      return res.status(400).json({ success: false, error: 'jobId is required' });
+    }
 
-    internalApi.post(`${PYTHON_API_URL}/automation/resume`, {
-      stateId: state._id,
-      answers: Object.fromEntries(state.answers || new Map()),
-      workflowUrl: workflow.url
-    }, {
-      headers: { 'x-correlation-id': req.correlationId }
-    }).catch(err => {
-      console.error('Failed to resume automation:', err);
-    });
+    const inputData = userInput || answers || { otp, captcha };
+    const updatedJob = await resumePlan(jobId, inputData);
 
-    res.status(200).json({ success: true, message: 'Resumed successfully' });
+    res.status(200).json({ success: true, message: 'Automation resumed successfully', data: updatedJob });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Webhook for Python AI ExecutionPlanner to send execution plan
+export const webhookReceivePlanController = async (req, res, next) => {
+  try {
+    const { jobId, stateId, plan } = req.body;
+
+    if (!jobId || !plan) {
+      return res.status(400).json({ success: false, error: 'jobId and plan are required' });
+    }
+
+    const job = await saveAndStartPlan(jobId, plan);
+
+    res.status(200).json({ success: true, message: 'Execution plan received and started', data: job });
   } catch (error) {
     next(error);
   }
@@ -49,7 +59,6 @@ export const statusWebhookController = async (req, res, next) => {
   try {
     const { jobId, status, message, additionalData } = req.body;
     
-    // Normalize status names from python if needed
     let normalizedStatus = status;
     if (status === 'PAUSED_FOR_USER_INPUT') normalizedStatus = 'PAUSED_OTP';
 

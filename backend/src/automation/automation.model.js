@@ -15,6 +15,9 @@ const automationJobSchema = new mongoose.Schema({
     currentStep: { type: Number, default: 0 },
     totalSteps: { type: Number, default: 0 }
   },
+
+  currentStepIndex: { type: Number, default: 0 },
+  executionPlan: { type: Array, default: [] },
   
   logs: [{
     timestamp: { type: Date, default: Date.now },

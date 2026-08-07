@@ -53,8 +53,8 @@ class LLMService:
         try:
             available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
         except Exception as e:
-            logger.error(f"Startup Validation Failed. Could not reach Google AI API: {e}")
-            raise RuntimeError(f"Failed to authenticate or connect to Gemini API: {e}")
+            logger.warning(f"Startup Validation Notice: Could not reach Google AI API ({e}). Defaulting to model {self.active_model_name}")
+            return
             
         logger.info(f"Successfully connected to Google AI. Found {len(available_models)} models.")
         

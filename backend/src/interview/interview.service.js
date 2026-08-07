@@ -76,7 +76,10 @@ export const processUserMessage = async (conversationId, userId, content) => {
   // 3. Call Python AI via internalApi
   let aiOutput;
   try {
-    const res = await internalApi.post(`${PYTHON_API_URL}/interview/turn`, payload);
+    const res = await internalApi.post(config.pythonApiUrl, {
+      intent: 'continue_interview',
+      ...payload
+    });
     aiOutput = res.data.data;
   } catch (error) {
     console.error(`[InterviewService] AI Service failed:`, error.message);
@@ -94,10 +97,21 @@ export const processUserMessage = async (conversationId, userId, content) => {
       state.confidenceScores.set(key, aiOutput.confidence);
     }
   }
+
+  // Extract the AI's response content, supporting both 'message' and 'question' schemas
+  let aiResponseContent = aiOutput.message || aiOutput.question;
+  
+  if (!aiResponseContent) {
+    throw Object.assign(new Error(`AIResponseValidationError: AI returned an empty message payload. Received keys: ${Object.keys(aiOutput).join(', ')}`), {
+      statusCode: 500,
+      code: 'AI_RESPONSE_VALIDATION_ERROR',
+      details: { aiOutput }
+    });
+  }
   
   if (state.pendingFields.length === 0) {
     state.status = 'COMPLETED';
-    aiOutput.question = "Excellent! I have all the information required. We are ready to submit your application.";
+    aiResponseContent = "Excellent! I have all the information required. We are ready to submit your application.";
   }
   
   await state.save();
@@ -106,7 +120,7 @@ export const processUserMessage = async (conversationId, userId, content) => {
   const aiMessage = await Message.create({
     conversationId,
     sender: 'AI',
-    content: aiOutput.question
+    content: aiResponseContent
   });
   
   return { state, reply: aiMessage };

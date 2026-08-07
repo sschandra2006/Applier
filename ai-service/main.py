@@ -2,16 +2,17 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-from api.routes import chat, rag, scanner, workflow, interview, documents, automation
-from services.failure_analyzer import FailureAnalyzer
+from api.routes import execute
 from core.llm_service import llm_service
 from core.logger import setup_logger, correlation_id_ctx
+from core.config import settings
 from api.middlewares import CorrelationIdMiddleware
 import datetime
 from fastapi.responses import JSONResponse
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
 
 logger = setup_logger("FastAPI")
 
@@ -83,38 +84,19 @@ async def startup_event():
         logger.info("Startup validation passed successfully.")
     except Exception as e:
         logger.fatal(f"AI Service failed to start: {str(e)}")
-        import sys
-        sys.exit(1)
+        # import sys
+        # sys.exit(1)
 
-failure_analyzer = FailureAnalyzer()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["POST", "GET", "OPTIONS"],
+    allow_headers=["Content-Type", "x-correlation-id", "Authorization"],
 )
 
-class AnalyzeFailureRequest(BaseModel):
-    logs: List[str]
-    url: str
-
-app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
-app.include_router(rag.router, prefix="/api/v1/rag", tags=["rag"])
-app.include_router(scanner.router, prefix="/api/v1/scanner", tags=["scanner"])
-app.include_router(workflow.router, prefix="/api/v1/workflow", tags=["workflow"])
-app.include_router(interview.router, prefix="/api/v1/interview", tags=["interview"])
-app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
-app.include_router(automation.router, prefix="/api/v1/automation", tags=["automation"])
-
-@app.post("/api/v1/analyze-failure")
-async def analyze_failure(req: AnalyzeFailureRequest):
-    try:
-        insight = failure_analyzer.analyze_failure(req.logs, req.url)
-        return insight
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+app.include_router(execute.router, prefix="/api/v1/ai", tags=["ai"])
 
 @app.get("/health")
 def health_check():

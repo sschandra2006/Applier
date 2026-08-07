@@ -10,7 +10,7 @@ const envSchema = z.object({
   FIREBASE_CLIENT_EMAIL: z.string().email('Invalid Firebase Client Email'),
   FIREBASE_PRIVATE_KEY: z.string().min(1, 'Firebase Private Key is required'),
   FIREBASE_STORAGE_BUCKET: z.string().optional(),
-  PYTHON_API_URL: z.string().url().optional().default('http://127.0.0.1:8000/api/v1'),
+  PYTHON_API_URL: z.string().url().optional().default('http://127.0.0.1:8000/api/v1/ai/execute'),
   JWT_SECRET: z.string().min(1, 'JWT Secret is required')
 });
 
