@@ -45,9 +45,31 @@ FIELD_ALIASES = {
     "label": [
         "text",
         "caption",
-        "question",
+    ],
+    "question": [
+        "followUpQuestion",
+        "followup_question",
+        "message",
+        "prompt",
+        "ask",
+    ],
+    "extracted_data": [
+        "extractedData",
+        "extracted_fields",
+        "extractedFields",
+        "answers",
+    ],
+    "nextField": [
+        "next_field",
+        "currentField",
+        "targetField",
+    ],
+    "requiresClarification": [
+        "requires_clarification",
+        "needClarification",
     ]
 }
+
 
 # Build reverse mapping for O(1) lookups
 ALIAS_TO_CANONICAL = {}
@@ -80,4 +102,7 @@ def normalize_dict(data: dict) -> dict:
         else:
             normalized[canonical_key] = value
             
+    if "pages" in normalized and "name" not in normalized and "title" not in normalized:
+        normalized["name"] = "Application Workflow"
+
     return normalized

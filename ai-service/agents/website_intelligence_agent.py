@@ -39,12 +39,14 @@ class WebsiteIntelligenceAgent:
     """
 
     def process(self, context: dict) -> dict:
-        raw_html = context.get("raw_data", {}).get("html", "")
-        url = context.get("raw_data", {}).get("url", "")
-        title = context.get("raw_data", {}).get("title", "")
+        raw_data = context.get("raw_data", {})
+        scanned_pages = raw_data.get("pages", [])
+        raw_html = raw_data.get("html", "")
+        url = raw_data.get("url", "")
+        title = raw_data.get("title", "")
 
-        if not raw_html:
-            logger.warning("[WebsiteIntelligenceAgent] No HTML provided in context.")
+        if not raw_html and not scanned_pages:
+            logger.warning("[WebsiteIntelligenceAgent] No HTML or pages provided in context.")
             return {
                 "action": "analyzed_dom",
                 "portal": "unknown",
@@ -53,9 +55,89 @@ class WebsiteIntelligenceAgent:
             }
 
         try:
-            soup = BeautifulSoup(raw_html, "html.parser")
+            # Multi-page site scan processing
+            if scanned_pages and isinstance(scanned_pages, list):
+                all_fields = []
+                all_steps = []
+                all_validations = []
+                combined_nav = {}
+                total_forms = 0
+                total_inputs = 0
+                has_frames = False
+                has_captcha = False
+                seen_selectors = set()
 
-            # Token & Memory Guardrail: Strip non-form visual/script clutter
+                for p_idx, p in enumerate(scanned_pages):
+                    p_html = p.get("html", "")
+                    p_url = p.get("url", url)
+                    p_title = p.get("title", title)
+                    if not p_html:
+                        continue
+
+                    p_soup = BeautifulSoup(p_html, "html.parser")
+                    for tag in p_soup(["script", "style", "svg", "path", "noscript", "header", "footer"]):
+                        tag.decompose()
+
+                    dom_info = self._analyze_dom(p_soup)
+                    total_forms += dom_info["formCount"]
+                    total_inputs += dom_info["inputCount"]
+                    has_frames = has_frames or dom_info["hasFrames"]
+                    has_captcha = has_captcha or dom_info["hasCaptcha"]
+
+                    p_steps = self._extract_workflow(p_soup, {"portal_type": "generic"})
+                    for step in p_steps:
+                        step["page_title"] = p_title
+                        step["page_url"] = p_url
+                        all_steps.append(step)
+
+                    p_fields = self._extract_fields(p_soup)
+                    for f in p_fields:
+                        if f["selector"] not in seen_selectors:
+                            seen_selectors.add(f["selector"])
+                            f["page_title"] = p_title
+                            f["page_url"] = p_url
+                            all_fields.append(f)
+
+                    nav = self._extract_navigation(p_soup)
+                    for k, v in nav.items():
+                        if k not in combined_nav and v:
+                            combined_nav[k] = v
+
+                first_soup = BeautifulSoup(scanned_pages[0].get("html", "") if scanned_pages else raw_html, "html.parser")
+                portal_type = self._identify_portal(url, title, first_soup)
+                all_validations = self._extract_validations(all_fields)
+                app_options = self._extract_application_options(scanned_pages, first_soup)
+
+                field_count = len(all_fields)
+                confidence = min(0.97, 0.55 + (field_count / 20))
+
+                logger.info(f"[WebsiteIntelligenceAgent] Analyzed full site scan for {url}: pages={len(scanned_pages)}, fields={field_count}, options={len(app_options)}")
+
+                return {
+                    "action": "analyzed_dom",
+                    "portal": portal_type,
+                    "title": title,
+                    "url": url,
+                    "metadata": {
+                        "domSummary": {
+                            "formCount": total_forms,
+                            "inputCount": total_inputs,
+                            "hasFrames": has_frames,
+                            "hasCaptcha": has_captcha,
+                            "pagesScanned": len(scanned_pages)
+                        },
+                        "steps": all_steps,
+                        "fields": all_fields,
+                        "validations": all_validations,
+                        "navigation": combined_nav,
+                        "applicationOptions": app_options,
+                        "pages": scanned_pages
+                    },
+                    "confidence": round(confidence, 2),
+                }
+
+            # Single page fallback
+            soup = BeautifulSoup(raw_html, "html.parser")
             for tag in soup(["script", "style", "svg", "path", "noscript", "header", "footer"]):
                 tag.decompose()
 
@@ -68,9 +150,9 @@ class WebsiteIntelligenceAgent:
             navigation = self._extract_navigation(soup)
 
             field_count = len(fields)
-            confidence = min(0.95, 0.5 + (field_count / 20))  # Scale confidence with field richness
+            confidence = min(0.95, 0.5 + (field_count / 20))
 
-            logger.info(f"[WebsiteIntelligenceAgent] Analyzed {url}: portal={portal_type}, fields={field_count}")
+            logger.info(f"[WebsiteIntelligenceAgent] Analyzed single page {url}: portal={portal_type}, fields={field_count}")
 
             return {
                 "action": "analyzed_dom",
@@ -188,16 +270,21 @@ class WebsiteIntelligenceAgent:
             # Find associated label
             label = self._find_label(soup, element)
 
+            # Skip website UI widgets (Language selection, Google Translate, Theme/Font toggles, Cookie banners)
+            if re.search(r"language|lang_select|translate|accessibility|fontsize|theme|cookie", field_id + " " + label, re.I):
+                continue
+
             # Detect OTP/CAPTCHA fields
             if self._is_otp_or_captcha(element, label):
                 input_type = "pause"
 
+            is_optional = "optional" in (label or "").lower() or "optional" in (element.get("placeholder", "")).lower()
             field = {
                 "name": field_id,
                 "type": "file" if input_type in UPLOAD_TYPES else input_type,
                 "label": label,
                 "selector": selector,
-                "required": element.has_attr("required") or element.get("aria-required") == "true",
+                "required": (element.has_attr("required") or element.get("aria-required") == "true") or not is_optional,
                 "placeholder": element.get("placeholder", ""),
             }
 
@@ -367,3 +454,36 @@ class WebsiteIntelligenceAgent:
             label
         ).lower()
         return any(indicator in combined for indicator in OTP_CAPTCHA_INDICATORS)
+
+    def _extract_application_options(self, scanned_pages: list, soup: BeautifulSoup) -> list:
+        options = []
+        seen_labels = set()
+
+        # 1. Extract application tabs (e.g. "New Application", "Resume Application")
+        tab_elements = soup.select(".tab, [role='tab'], [data-toggle='tab'], .nav-tabs a, button[id*='tab'], div[id*='tab'], a[href*='Register'], a[href*='Token']")
+        for tab in tab_elements:
+            tab_text = tab.get_text(strip=True)
+            if tab_text and len(tab_text) > 2 and len(tab_text) < 60 and tab_text.lower() not in seen_labels:
+                seen_labels.add(tab_text.lower())
+                options.append({
+                    "id": f"tab_{len(options) + 1}",
+                    "label": tab_text,
+                    "isExternal": False
+                })
+
+        # 2. Extract CTA options from scanned pages
+        for p in scanned_pages:
+            ctas = p.get("ctaOptions", [])
+            for cta in ctas:
+                url = cta.get("url")
+                label = (cta.get("label") or "").strip()
+                if url and label.lower() not in seen_labels and len(label) > 2:
+                    seen_labels.add(label.lower())
+                    options.append({
+                        "id": f"opt_{len(options) + 1}",
+                        "label": label,
+                        "url": url,
+                        "isExternal": cta.get("isExternal", False)
+                    })
+
+        return options

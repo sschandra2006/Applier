@@ -85,6 +85,36 @@ export const login = async (req, res, next) => {
   }
 };
 
+export const devLogin = async (req, res, next) => {
+  try {
+    const devFirebaseUser = {
+      uid: 'dev_demo_user_123',
+      email: 'demo@applier.ai'
+    };
+
+    let user = await User.findOne({ email: devFirebaseUser.email });
+    if (!user) {
+      user = await syncUserWithFirebase(devFirebaseUser);
+    }
+
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        token,
+        user: {
+          userId: user._id,
+          email: user.email,
+          role: user.role
+        }
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const me = async (req, res, next) => {
   try {
     res.status(200).json({

@@ -13,6 +13,8 @@ class AIExecuteRequest(BaseModel):
     documents: list = []
     portal_context: dict = {}
     raw_data: dict = {}
+    state: dict = {}
+    lastUserMessage: str = ""
 
 @router.post("/execute")
 async def execute_ai(req: AIExecuteRequest):

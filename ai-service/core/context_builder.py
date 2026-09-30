@@ -11,7 +11,9 @@ class ContextBuilder:
             "user_profile": payload.get("user_profile", {}),
             "documents": payload.get("documents", []),
             "portal_context": payload.get("portal_context", {}),
-            "raw_data": payload.get("raw_data", {}) # e.g. HTML, URLs, etc.
+            "raw_data": payload.get("raw_data", {}), # e.g. HTML, URLs, etc.
+            "state": payload.get("state", {}),
+            "lastUserMessage": payload.get("lastUserMessage", "")
         }
 
 context_builder = ContextBuilder()

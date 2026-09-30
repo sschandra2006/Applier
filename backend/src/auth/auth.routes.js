@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, me, refresh, logout, forgotPassword, verifyOtp, resetPassword, sendRegisterOtp } from './auth.controller.js';
+import { register, login, devLogin, me, refresh, logout, forgotPassword, verifyOtp, resetPassword, sendRegisterOtp } from './auth.controller.js';
 import { requireAuth } from './auth.middleware.js';
 import { requireJwtAuth } from './jwt.middleware.js';
 
@@ -8,6 +8,7 @@ const router = Router();
 // Firebase Token Verification endpoints (Issue JWTs)
 router.post('/register', requireAuth, register);
 router.post('/login', requireAuth, login);
+router.post('/dev-login', devLogin);
 
 // Pre-Registration OTP
 router.post('/send-register-otp', sendRegisterOtp);

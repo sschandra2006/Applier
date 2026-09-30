@@ -28,7 +28,8 @@ services:
       - "8000:8000"
     environment:
       - NODE_API_URL=http://backend:5000/api/v1
-      # Note: GEMINI_API_KEY must be passed via .env or shell env
+      # Note: HF_TOKEN must be passed via .env or shell env
+
     volumes:
       - ./ai-service:/app
 

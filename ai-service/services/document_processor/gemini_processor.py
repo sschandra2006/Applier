@@ -14,8 +14,9 @@ class DocumentExtraction(BaseModel):
     documentType: str
     extracted_fields: Dict[str, ExtractedField]
 
-class GeminiVisionProcessor(DocumentProcessor):
+class QwenDocumentProcessor(DocumentProcessor):
     async def extract_data(self, file_url: str, expected_type: str, mime_type: str) -> Dict[str, Any]:
+
         # 1. Download file
         async with httpx.AsyncClient() as client:
             response = await client.get(file_url)

@@ -35,8 +35,9 @@ export default function AuthLayout() {
         {/* Footer */}
         <div className="mt-12 text-center text-xs text-muted-foreground flex items-center gap-1.5 opacity-70">
           <Sparkles size={12} className="text-primary" />
-          Powered by Gemini & Playwright
+          Powered by Qwen 2.5 & Playwright
         </div>
+
 
       </div>
     </div>

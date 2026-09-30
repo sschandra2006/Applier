@@ -15,13 +15,29 @@ export const requireJwtAuth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, config.jwtSecret);
-    const user = await User.findById(decoded.userId).select('-password');
+    let user;
+    try {
+      user = await User.findById(decoded.userId).select('-password');
+    } catch (dbErr) {
+      if (dbErr.name === 'MongoServerSelectionError' || dbErr.name === 'MongoNetworkError') {
+        console.warn('Transient Mongo error in JWT auth. Retrying query...');
+        await new Promise(r => setTimeout(r, 500));
+        try {
+          user = await User.findById(decoded.userId).select('-password');
+        } catch (_) {
+          // If DB is still reconnecting, pass decoded userId context so request isn't blocked
+          user = { _id: decoded.userId, status: 'ACTIVE' };
+        }
+      } else {
+        throw dbErr;
+      }
+    }
 
     if (!user) {
       return res.status(401).json({ success: false, error: 'Unauthorized: User not found' });
     }
 
-    if (user.status !== 'ACTIVE') {
+    if (user.status && user.status !== 'ACTIVE') {
       return res.status(403).json({ success: false, error: 'Forbidden: Account is suspended or deleted' });
     }
 

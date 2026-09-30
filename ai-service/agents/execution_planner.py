@@ -111,12 +111,20 @@ Navigation from workflow:
 
 Instructions:
 1. Start with a navigate step to: {target_url}
-2. For each required field with a selector, add a fill/select/upload step.
+2. For each required field with a selector, add a fill/select/upload/click step in form order.
 3. Map each step's `field` to the field ID. Use the user's answers to determine the value.
 4. After filling all fields on a page, add a click step for the next/submit button.
-5. If any field is type "pause" (OTP/CAPTCHA), add a pause step.
-6. End with a screenshot step to capture the confirmation.
-7. Only use selectors from the provided workflow fields. Do NOT invent selectors.
+5. For CAPTCHA fields (type="captcha", id contains "captcha", or selector contains "captcha"):
+   - Add a pause step with `type: "pause"`, `pauseReason: "CAPTCHA"`, `field: "<captcha_field_id>"`.
+   - Also set `captchaSelector` to the CSS selector of the CAPTCHA IMAGE element (e.g. "img.captchaImg", "#captchaImage", "canvas.captcha").
+   - The automation engine will screenshot that element and show it to the user.
+   - After the pause step, add a fill step for the captcha input field — the user's answer will be in answers[field_id].
+6. For OTP fields (id/name contains "otp", "password" in a phone-verify context):
+   - Add a pause step with `type: "pause"`, `pauseReason: "OTP"`, `field: "<otp_field_id>"`.
+   - After the pause step, add a fill step for the OTP input — the user's answer will be in answers[field_id].
+7. End with a screenshot step to capture the confirmation.
+8. Only use selectors from the provided workflow fields. Do NOT invent selectors.
+9. For government forms with verification (like SSC exam number lookup), add a click step for the "Validate/Fetch" button before continuing to the next section.
 """
 
         plan = llm_service.generate_safe_json(

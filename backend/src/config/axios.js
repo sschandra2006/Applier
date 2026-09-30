@@ -4,7 +4,7 @@ import { logger } from './logger.js';
 
 // Create a pre-configured instance for internal service-to-service communication
 export const internalApi = axios.create({
-  timeout: 60000, // 60s timeout for AI calls
+  timeout: 120000, // 120s timeout for AI calls
 });
 
 // Phase 13: Network Resilience

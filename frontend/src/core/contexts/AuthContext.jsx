@@ -33,24 +33,37 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    const initAuth = async () => {
+      if (localStorage.getItem('backend_token')) {
+        await fetchBackendProfile();
+      }
+      setLoading(false);
+    };
+
+    initAuth();
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setFirebaseUser(user);
       if (user && localStorage.getItem('backend_token')) {
         await fetchBackendProfile();
-      } else {
-        setUserProfile(null);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
   }, [fetchBackendProfile]);
 
+  const logout = () => {
+    localStorage.removeItem('backend_token');
+    setUserProfile(null);
+    setFirebaseUser(null);
+  };
+
   const value = {
     firebaseUser,
     userProfile,
-    isAuthenticated: !!firebaseUser && !!userProfile,
-    fetchBackendProfile
+    isAuthenticated: !!userProfile,
+    fetchBackendProfile,
+    logout
   };
 
   if (loading) {

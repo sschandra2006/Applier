@@ -1,6 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import dns from 'dns';
 import { config } from './src/config/env.js';
+
+try {
+  dns.setDefaultResultOrder('ipv4first');
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch (_) {}
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
@@ -74,19 +80,27 @@ app.get('/api/v1/health', (req, res) => {
   res.json({ success: true, message: 'Applier API is running' });
 });
 
-// Database Connection
-const connectDB = async () => {
-  try {
-    const mongoUri = config.mongoUri;
-    if (mongoUri) {
-        await mongoose.connect(mongoUri);
-        logger.info('MongoDB Connected...');
-    } else {
-        logger.warn('No MONGO_URI provided, skipping DB connection for now.');
+const connectDB = async (retries = 5, delayMs = 2000) => {
+  const mongoUri = config.mongoUri;
+  if (!mongoUri) {
+    logger.warn('No MONGO_URI provided, skipping DB connection for now.');
+    return;
+  }
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await mongoose.connect(mongoUri);
+      logger.info('MongoDB Connected...');
+      return;
+    } catch (error) {
+      if (attempt < retries) {
+        logger.warn({ err: error.message }, `MongoDB connection attempt ${attempt}/${retries} failed. Retrying in ${delayMs}ms...`);
+        await new Promise(res => setTimeout(res, delayMs));
+      } else {
+        logger.fatal({ err: error }, 'Database connection failed after maximum retries (Fail-Fast)');
+        process.exit(1);
+      }
     }
-  } catch (error) {
-    logger.fatal({ err: error }, 'Database connection failed at startup (Fail-Fast)');
-    process.exit(1);
   }
 };
 

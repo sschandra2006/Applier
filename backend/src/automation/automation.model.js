@@ -22,8 +22,18 @@ const automationJobSchema = new mongoose.Schema({
   logs: [{
     timestamp: { type: Date, default: Date.now },
     level: { type: String, enum: ['INFO', 'WARNING', 'ERROR'], default: 'INFO' },
-    message: String
+    message: String,
+    additionalData: { type: mongoose.Schema.Types.Mixed, default: {} }
   }],
+
+  // Stored when job is paused for OTP or CAPTCHA
+  pauseContext: {
+    fieldName: { type: String },          // e.g. 'captcha', 'otp'
+    pauseReason: { type: String },        // 'OTP' | 'CAPTCHA' | 'MANUAL_REVIEW'
+    captchaImageBase64: { type: String }, // Base64 screenshot of the captcha element
+    stepIndex: { type: Number },          // Which step index we paused at
+    resumeFromIndex: { type: Number }     // Which step index to resume from
+  },
   
   errorDetails: String
 }, { timestamps: true });

@@ -37,6 +37,14 @@ const executeWithFirebaseToken = async (url, body = {}) => {
 export const registerApi = (otp = null) => executeWithFirebaseToken('/register', { otp });
 export const loginApi = () => executeWithFirebaseToken('/login');
 
+export const devLoginApi = async () => {
+  const response = await axios.post(config.apiBaseUrl + '/auth/dev-login');
+  if (response.data.success && response.data.data.token) {
+    localStorage.setItem('backend_token', response.data.data.token);
+  }
+  return response.data;
+};
+
 export const sendRegisterOtpApi = async (email) => {
   const response = await api.post('/send-register-otp', { email });
   return response.data;

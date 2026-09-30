@@ -24,6 +24,7 @@ const workflowSchema = new mongoose.Schema({
   website: { type: String, required: false },
   url: { type: String, required: true },
   urlHash: { type: String, required: true, index: true },
+  landingScreenshot: { type: String, required: false },
   schemaVersion: { type: String, default: "2.0" },
   schemaDefinition: {
     pages: { type: [pageSchema], default: [] },

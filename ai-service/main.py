@@ -14,9 +14,21 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
+from contextlib import asynccontextmanager
+
 logger = setup_logger("FastAPI")
 
-app = FastAPI(title="Applier AI Service")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Fail fast if AI service startup validation fails
+    try:
+        llm_service.startup_check()
+        logger.info("Startup validation passed successfully.")
+    except Exception as e:
+        logger.fatal(f"AI Service failed to start: {str(e)}")
+    yield
+
+app = FastAPI(title="Applier AI Service", lifespan=lifespan)
 
 app.add_middleware(CorrelationIdMiddleware)
 
@@ -76,16 +88,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         }
     )
 
-@app.on_event("startup")
-async def startup_event():
-    # Fail fast if Gemini is completely broken or out of credits
-    try:
-        llm_service.startup_check()
-        logger.info("Startup validation passed successfully.")
-    except Exception as e:
-        logger.fatal(f"AI Service failed to start: {str(e)}")
-        # import sys
-        # sys.exit(1)
+
 
 
 app.add_middleware(

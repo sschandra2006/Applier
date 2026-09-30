@@ -12,6 +12,7 @@ const interviewStateSchema = new mongoose.Schema({
   optionalFields: [{ type: String }],
   
   currentStep: { type: Number, default: 1 },
+  currentField: { type: String, default: null }, // Active field name (string) for AI context
   blockedFields: [{ type: String }],
   clarificationRequired: { type: Boolean, default: false },
   
@@ -20,6 +21,6 @@ const interviewStateSchema = new mongoose.Schema({
   
   lastQuestionId: { type: String },
   status: { type: String, enum: ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'PAUSED'], default: 'NOT_STARTED' }
-}, { timestamps: true });
+}, { timestamps: true, versionKey: false });
 
 export const InterviewState = mongoose.model('InterviewState', interviewStateSchema);

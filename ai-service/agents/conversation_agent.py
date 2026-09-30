@@ -19,10 +19,8 @@ class ConversationAgent:
         last_user_message = context.get("lastUserMessage", "Hello, I'd like to start my application.")
 
         try:
-            # process_interview_turn is async — run it in the current event loop
-            result = asyncio.get_event_loop().run_until_complete(
-                process_interview_turn(state, last_user_message)
-            )
+            result = process_interview_turn(state, last_user_message)
+
 
             # Normalise output: interview_ai returns ExtractedAnswer fields
             return {
@@ -48,19 +46,34 @@ class ConversationAgent:
             }
 
     def _build_state_from_context(self, context: dict) -> dict:
-        """Build a minimal interview state dict from orchestrator context for first-message generation."""
+        """Build an interview state dict with field details from orchestrator context for message generation."""
         workflow = context.get("workflow", {})
         pending_fields = []
+        field_details = {}
 
-        # Flatten pages → steps to collect required field IDs
+        # Flatten pages -> steps to collect field IDs and rich metadata
         for page in workflow.get("pages", []):
+            page_title = page.get("title", "")
             for step in page.get("steps", []):
-                if step.get("required") and step.get("id"):
-                    pending_fields.append(step["id"])
+                s_id = step.get("id")
+                if s_id and s_id not in pending_fields:
+                    pending_fields.append(s_id)
+                    field_details[s_id] = {
+                        "label": step.get("label", s_id),
+                        "type": step.get("type", "text"),
+                        "required": step.get("required", True),
+                        "options": step.get("options"),
+                        "page_title": page_title,
+                        "validation": step.get("validation")
+                    }
+
+        app_options = workflow.get("metadata", {}).get("applicationOptions") or []
 
         return {
             "answers": {},
             "pendingFields": pending_fields,
+            "fieldDetails": field_details,
+            "applicationOptions": app_options,
             "completedFields": [],
             "currentStep": pending_fields[0] if pending_fields else None,
             "availableDocuments": context.get("documents", []),

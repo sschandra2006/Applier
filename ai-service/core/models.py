@@ -49,11 +49,14 @@ class ExecutionStep(BaseModel):
     pauseReason: Optional[Literal["OTP", "CAPTCHA", "MANUAL_REVIEW"]] = Field(
         default=None, description="Reason for pause steps"
     )
+    captchaSelector: Optional[str] = Field(
+        default=None, description="CSS selector of the CAPTCHA image element to screenshot (for CAPTCHA pause steps)"
+    )
 
 class ExecutionPlan(BaseModel):
     """Full Playwright execution plan returned by ExecutionPlanner."""
-    targetUrl: str
-    totalSteps: int
+    targetUrl: str = Field(default="", validation_alias=AliasChoices('targetUrl', 'target_url', 'url'))
+    totalSteps: int = Field(default=0, validation_alias=AliasChoices('totalSteps', 'total_steps', 'count'))
     steps: List[ExecutionStep] = Field(default_factory=list)
     confidence: float = Field(default=0.85)
     notes: Optional[str] = Field(default=None, description="Any notes about this plan")

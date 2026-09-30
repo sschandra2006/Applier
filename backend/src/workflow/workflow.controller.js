@@ -1,5 +1,8 @@
 import { Workflow } from './workflow.model.js';
 import { startInterview } from '../interview/interview.service.js';
+import { InterviewState } from '../interview/interview-state.model.js';
+import { Conversation } from '../chat/conversation.model.js';
+import { Message } from '../chat/message.model.js';
 import crypto from 'crypto';
 import { config } from '../config/env.js';
 import { internalApi } from '../config/axios.js';
@@ -9,7 +12,7 @@ const PYTHON_API_URL = config.pythonApiUrl;
 
 export const analyzeUrl = async (req, res, next) => {
   try {
-    const { targetUrl } = req.body;
+    const { targetUrl, bypassCache, forceRescan } = req.body;
     const userId = req.user._id;
 
     if (!targetUrl) {
@@ -17,14 +20,29 @@ export const analyzeUrl = async (req, res, next) => {
     }
 
     const urlHash = crypto.createHash('sha256').update(targetUrl).digest('hex');
-    let workflow = await Workflow.findOne({ urlHash });
     
-    if (workflow) {
-      console.log(`[Workflow Cache Hit] Reuse existing workflow for: ${targetUrl}`);
+    if (bypassCache || forceRescan) {
+      await Workflow.deleteMany({ urlHash });
+      console.log(`[Workflow Cache Cleared] Removed cached workflow for: ${targetUrl}`);
+    }
+
+    let scannedData = null;
+    let workflow = await Workflow.findOne({ urlHash });
+    // Valid = has pages with steps AND at least one step has a non-null id
+    const hasValidSteps = workflow?.schemaDefinition?.pages?.some(p =>
+      p.steps?.some(s => s.id && s.id.trim() !== '')
+    );
+    
+    if (workflow && hasValidSteps) {
+      console.log(`[Workflow Cache Hit] Reuse existing valid workflow for: ${targetUrl}`);
     } else {
+      if (workflow && !hasValidSteps) {
+        console.log(`[Workflow Cache Invalidated] Deleting outdated/empty cached workflow for: ${targetUrl}`);
+        await Workflow.deleteOne({ _id: workflow._id });
+      }
       console.log(`[Workflow Cache Miss] Scanning new URL via Node Automation Service: ${targetUrl}`);
       // 1. Scan DOM using Node.js Playwright (Automation Service)
-      const scannedData = await scanUrl(targetUrl);
+      scannedData = await scanUrl(targetUrl);
 
       // 2. Call Python AI Orchestrator to Plan Workflow
       console.log(`[Workflow] Planning workflow via AI Orchestrator for: ${targetUrl}`);
@@ -48,24 +66,49 @@ export const analyzeUrl = async (req, res, next) => {
         name: schema.name || 'Generated Workflow',
         url: targetUrl,
         urlHash: urlHash,
+        landingScreenshot: scannedData?.landingScreenshot || scannedData?.pages?.[0]?.screenshot || null,
         schemaDefinition: schema
       });
     }
 
-    // 4. Start Interview Process
+    // 4. Start Interview Process — reuse existing IN_PROGRESS state if available
     console.log(`[Workflow] Starting AI Interview for Workflow: ${workflow._id}`);
-    const { state, conversation } = await startInterview(userId, workflow._id);
 
-    // Call AI Orchestrator to generate the first message based on the workflow
-    const chatResponse = await internalApi.post(PYTHON_API_URL, {
-        intent: 'continue_interview',
-        workflow: workflow.schemaDefinition,
-        conversation: conversation.messages || []
+    // Look for existing in-progress interview for this user+workflow
+    const existingState = await InterviewState.findOne({
+      userId,
+      workflowId: workflow._id,
+      status: 'IN_PROGRESS'
     });
+
+    let state, conversation, firstMessage;
+
+    if (existingState) {
+      // Reuse existing state — find its conversation
+      conversation = await Conversation.findOne({ 'metadata.interviewStateId': existingState._id, userId });
+      if (!conversation) {
+        // Conversation was lost — create a fresh one linked to existing state
+        conversation = await Conversation.create({
+          userId,
+          title: `Interview: ${workflow.name}`,
+          metadata: { interviewStateId: existingState._id }
+        });
+      }
+      state = existingState;
+      // Re-emit the next pending question
+      const lastMsg = await Message.findOne({ conversationId: conversation._id, sender: 'AI' }).sort({ createdAt: -1 });
+      firstMessage = lastMsg || { content: 'Welcome back! Let\'s continue your application.' };
+      console.log(`[Workflow] Reusing existing InterviewState ${existingState._id} for user ${userId}`);
+    } else {
+      const result = await startInterview(userId, workflow._id);
+      state = result.state;
+      conversation = result.conversation;
+      firstMessage = result.firstMessage;
+    }
 
     const firstAiMessage = {
        sender: 'AI',
-       content: chatResponse.data.success ? chatResponse.data.data.message : 'Hi, I have analyzed the application. I have a few questions for you before we submit.'
+       content: firstMessage?.content || 'Hi, I have analyzed the application. I have a few questions for you before we submit.'
     };
 
     res.status(201).json({ 
@@ -74,9 +117,11 @@ export const analyzeUrl = async (req, res, next) => {
         workflow,
         interviewStateId: state._id,
         conversationId: conversation._id,
-        firstMessage: firstAiMessage
+        firstMessage: firstAiMessage,
+        landingScreenshot: workflow.landingScreenshot || scannedData?.landingScreenshot || scannedData?.pages?.[0]?.screenshot || null
       } 
     });
+
   } catch (error) {
     console.error('Workflow analysis error [Traceback]:', error.stack);
     

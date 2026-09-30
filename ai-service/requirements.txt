@@ -1,6 +1,7 @@
 fastapi
 uvicorn
-google-generativeai
+huggingface-hub
+sentence-transformers
 python-dotenv
 pydantic
 tenacity
@@ -8,3 +9,4 @@ json_repair
 beautifulsoup4
 requests
 chromadb
+

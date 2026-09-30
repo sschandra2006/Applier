@@ -1,7 +1,6 @@
 from core.llm_service import llm_service
-import google.generativeai as genai
-
 import json
+
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from core.models import WorkflowSchema, WorkflowPage, WorkflowStep

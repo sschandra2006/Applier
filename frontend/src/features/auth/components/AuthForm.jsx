@@ -1,16 +1,31 @@
 import React, { useState } from 'react';
 import { signInWithPopup, getAdditionalUserInfo } from 'firebase/auth';
 import { auth, googleProvider } from '../../../core/firebase.js';
-import { loginApi, registerApi } from '../services/auth.api.js';
+import { loginApi, registerApi, devLoginApi } from '../services/auth.api.js';
 import { useAuth } from '../../../core/contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Zap } from 'lucide-react';
 
 export const AuthForm = () => {
   const [error, setError] = useState(null);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [devLoading, setDevLoading] = useState(false);
   const navigate = useNavigate();
   const { fetchBackendProfile } = useAuth();
+
+  const handleDevLogin = async () => {
+    setError(null);
+    setDevLoading(true);
+    try {
+      await devLoginApi();
+      await fetchBackendProfile();
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Dev login error:', err);
+      setError(err.response?.data?.error || "Dev sign-in failed. Ensure backend is running.");
+      setDevLoading(false);
+    }
+  };
 
   const handleGoogleAuth = async () => {
     setError(null);
@@ -26,7 +41,6 @@ export const AuthForm = () => {
           await loginApi();
         } catch (loginErr) {
           if (loginErr.response?.data?.error === 'User does not exist in database. Please register first.') {
-            // Auto-register them since they used Google Auth but were missing from MongoDB
             await registerApi(null);
           } else {
             throw loginErr;
@@ -37,8 +51,9 @@ export const AuthForm = () => {
       await fetchBackendProfile();
       navigate('/dashboard');
     } catch (err) {
+      console.error('Google Auth Error:', err);
       if (err.code !== 'auth/popup-closed-by-user') {
-        setError(err.response?.data?.error || "Google sign-in failed. Please try again.");
+        setError(err.response?.data?.error || "Google sign-in blocked by browser or Firebase. Click 'Skip Firebase (Dev Login)' below.");
       }
       setGoogleLoading(false);
     }
@@ -60,7 +75,7 @@ export const AuthForm = () => {
       <button 
         type="button" 
         onClick={handleGoogleAuth}
-        disabled={googleLoading} 
+        disabled={googleLoading || devLoading} 
         className="w-full flex justify-center items-center py-3 px-4 border border-input rounded-xl shadow-sm bg-background text-sm font-medium text-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-primary transition-all disabled:opacity-50"
       >
         {googleLoading ? <Loader2 size={18} className="animate-spin mr-2" /> : (
@@ -72,6 +87,22 @@ export const AuthForm = () => {
           </svg>
         )}
         {googleLoading ? 'Connecting...' : 'Continue with Google'}
+      </button>
+
+      <div className="relative flex py-2 items-center">
+        <div className="flex-grow border-t border-muted"></div>
+        <span className="flex-shrink mx-4 text-xs text-muted-foreground uppercase font-semibold">Or</span>
+        <div className="flex-grow border-t border-muted"></div>
+      </div>
+
+      <button 
+        type="button" 
+        onClick={handleDevLogin}
+        disabled={devLoading || googleLoading} 
+        className="w-full flex justify-center items-center py-3 px-4 border border-primary/20 rounded-xl shadow-sm bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50"
+      >
+        {devLoading ? <Loader2 size={18} className="animate-spin mr-2" /> : <Zap size={18} className="mr-2" />}
+        {devLoading ? 'Bypassing Firebase...' : 'Skip Firebase (Dev Sign-In)'}
       </button>
     </div>
   );
