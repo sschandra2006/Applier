@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "2.0.0",
+  "decisionId": "mrd_example_norm_001",
+  "taskType": "NORMALIZATION",
+  "route": "DETERMINISTIC",
+  "selectedModel": "deterministic-rule-engine",
+  "tokens": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "totalTokens": 0
+  },
+  "latencyMs": 0.42,
+  "costUsd": 0.0,
+  "confidence": 1.0,
+  "success": true,
+  "fallbackHistory": [],
+  "humanCheckpointRequired": false,
+  "humanCheckpointReason": null
+}

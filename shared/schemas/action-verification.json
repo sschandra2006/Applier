@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/action-verification.json",
+  "title": "ActionVerification",
+  "description": "Canonical contract for incremental post-action verification in the Observe-Plan-Act-Verify loop.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "verificationId": {
+      "type": "string"
+    },
+    "stepIndex": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "actionType": {
+      "type": "string",
+      "enum": [
+        "navigate",
+        "fill",
+        "select",
+        "upload",
+        "click",
+        "pause",
+        "screenshot",
+        "wait",
+        "submit"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASSED",
+        "FAILED",
+        "SKIPPED",
+        "RECOVERED"
+      ]
+    },
+    "target": {
+      "type": ["string", "object", "null"]
+    },
+    "expected": {
+      "type": ["string", "object", "number", "boolean", "null"]
+    },
+    "actual": {
+      "type": ["string", "object", "number", "boolean", "null"]
+    },
+    "evidence": {
+      "type": "string",
+      "description": "Evidence confirming verification or describing reason for failure."
+    },
+    "error": {
+      "type": ["string", "null"]
+    },
+    "recoveryAttempted": {
+      "type": "boolean",
+      "default": false
+    },
+    "recoveryOutcome": {
+      "type": ["string", "null"]
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "verificationId",
+    "stepIndex",
+    "actionType",
+    "status",
+    "evidence"
+  ],
+  "additionalProperties": true
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/browser-action.json",
+  "title": "BrowserAction",
+  "description": "Discrete browser automation command dispatched to Playwright runner.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "actionId": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["navigate", "fill", "click", "select", "upload", "pause", "wait", "screenshot"]
+    },
+    "targetSelector": {
+      "type": "string"
+    },
+    "value": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "default": 10000
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "result": {
+      "type": "string",
+      "enum": ["SUCCESS", "FAILURE", "TIMED_OUT", "PENDING"],
+      "default": "PENDING"
+    }
+  },
+  "required": ["schemaVersion", "actionId", "type"],
+  "additionalProperties": true
+}

@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/semantic-field-mapping.json",
+  "title": "SemanticFieldMapping",
+  "description": "Canonical contract for mapping target website form fields to applicant knowledge graph properties and document evidences.",
+  "type": "object",
+  "$defs": {
+    "MappingStatus": {
+      "type": "string",
+      "enum": [
+        "MATCHED",
+        "AMBIGUOUS",
+        "MISSING",
+        "CONFLICT",
+        "REQUIRES_USER"
+      ]
+    },
+    "FieldSource": {
+      "type": "string",
+      "enum": [
+        "PROFILE",
+        "DOCUMENT",
+        "USER_INPUT",
+        "PREVIOUS_APPLICATION",
+        "SYSTEM_DERIVED",
+        "NONE"
+      ]
+    },
+    "FieldMapping": {
+      "type": "object",
+      "properties": {
+        "websiteFieldId": {
+          "type": "string",
+          "description": "Identifier of the website input element."
+        },
+        "applicantField": {
+          "type": "string",
+          "description": "Canonical domain or semantic path in knowledge graph (e.g. applicant.fullName, identity.dateOfBirth)."
+        },
+        "candidateValue": {
+          "description": "The value retrieved from the applicant knowledge graph or document evidence (null if missing)."
+        },
+        "source": {
+          "$ref": "#/$defs/FieldSource",
+          "description": "Provenance source of the candidate value."
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Confidence score of the semantic mapping."
+        },
+        "status": {
+          "$ref": "#/$defs/MappingStatus",
+          "description": "Classification status of the mapping."
+        },
+        "isFillable": {
+          "type": "boolean",
+          "description": "Whether the automation engine is permitted to fill this field automatically (true ONLY for MATCHED with high confidence)."
+        },
+        "evidence": {
+          "type": ["string", "null"],
+          "description": "Reference to document evidence or provenance note (e.g. Aadhaar.pdf)."
+        },
+        "documentId": {
+          "type": ["string", "null"],
+          "description": "Associated document ID if derived from document extraction."
+        },
+        "signalsUsed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of matching signals utilized (e.g. label, role, name, placeholder, autocomplete, etc.)."
+        },
+        "matchReason": {
+          "type": ["string", "null"],
+          "description": "Human-readable explanation of why this mapping was chosen."
+        },
+        "alternativeMatches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "applicantField": { "type": "string" },
+              "confidence": { "type": "number" },
+              "reason": { "type": "string" }
+            },
+            "required": ["applicantField", "confidence"]
+          }
+        },
+        "conflictDetails": {
+          "type": ["object", "null"],
+          "properties": {
+            "existingValue": {},
+            "conflictingValue": {},
+            "reason": { "type": "string" }
+          }
+        }
+      },
+      "required": [
+        "websiteFieldId",
+        "applicantField",
+        "source",
+        "confidence",
+        "status"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "mappingId": {
+      "type": "string"
+    },
+    "pageUrl": {
+      "type": "string"
+    },
+    "pageType": {
+      "type": "string"
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FieldMapping"
+      }
+    },
+    "stats": {
+      "type": "object",
+      "properties": {
+        "totalFields": { "type": "integer" },
+        "matched": { "type": "integer" },
+        "ambiguous": { "type": "integer" },
+        "missing": { "type": "integer" },
+        "conflict": { "type": "integer" },
+        "requiresUser": { "type": "integer" },
+        "fillableCount": { "type": "integer" }
+      }
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "mappings"
+  ],
+  "additionalProperties": true
+}

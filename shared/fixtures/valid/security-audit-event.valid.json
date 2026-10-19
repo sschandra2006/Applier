@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "2.0.0",
+  "eventId": "sae_sec_block_001",
+  "eventType": "SSRF_BLOCKED",
+  "severity": "CRITICAL",
+  "timestamp": "2026-10-07T11:30:00.000Z",
+  "userId": "user_12345",
+  "ipAddress": "198.51.100.24",
+  "resourceId": "job_998877",
+  "details": {
+    "attemptedUrl": "http://169.254.169.254/latest/meta-data/",
+    "reason": "Target IP falls in private / link-local cloud metadata range"
+  },
+  "blocked": true
+}

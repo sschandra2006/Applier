@@ -1,0 +1,102 @@
+{
+  "SchemaVersion": "2.0.0",
+  "JobStatus": {
+    "QUEUED": "QUEUED",
+    "RUNNING": "RUNNING",
+    "PAUSED_OTP": "PAUSED_OTP",
+    "PAUSED_CAPTCHA": "PAUSED_CAPTCHA",
+    "PAUSED_PAYMENT": "PAUSED_PAYMENT",
+    "COMPLETED": "COMPLETED",
+    "FAILED": "FAILED",
+    "CANCELLED": "CANCELLED"
+  },
+  "ExecutionStepType": {
+    "NAVIGATE": "navigate",
+    "FILL": "fill",
+    "CLICK": "click",
+    "SELECT": "select",
+    "UPLOAD": "upload",
+    "PAUSE": "pause",
+    "WAIT": "wait",
+    "SCREENSHOT": "screenshot"
+  },
+  "PauseReason": {
+    "OTP": "OTP",
+    "CAPTCHA": "CAPTCHA",
+    "PAYMENT": "PAYMENT",
+    "MANUAL_REVIEW": "MANUAL_REVIEW"
+  },
+  "InterviewStatus": {
+    "NOT_STARTED": "NOT_STARTED",
+    "IN_PROGRESS": "IN_PROGRESS",
+    "PAUSED": "PAUSED",
+    "COMPLETED": "COMPLETED"
+  },
+  "DocumentType": {
+    "PASSPORT": "PASSPORT",
+    "AADHAAR": "AADHAAR",
+    "PAN": "PAN",
+    "DRIVING_LICENCE": "DRIVING_LICENCE",
+    "BIRTH_CERTIFICATE": "BIRTH_CERTIFICATE",
+    "MARKSHEET": "MARKSHEET",
+    "INCOME_CERTIFICATE": "INCOME_CERTIFICATE",
+    "FEE_RECEIPT": "FEE_RECEIPT",
+    "PHOTO": "PHOTO",
+    "SIGNATURE": "SIGNATURE",
+    "OTHER": "OTHER"
+  },
+  "DocumentValidationStatus": {
+    "PENDING": "PENDING",
+    "VALID": "VALID",
+    "INVALID": "INVALID",
+    "EXPIRED": "EXPIRED",
+    "UNREADABLE": "UNREADABLE"
+  },
+  "ApplicationStatus": {
+    "DRAFT": "DRAFT",
+    "READY": "READY",
+    "SUBMITTING": "SUBMITTING",
+    "SUBMITTED": "SUBMITTED",
+    "IN_REVIEW": "IN_REVIEW",
+    "APPROVED": "APPROVED",
+    "REJECTED": "REJECTED"
+  },
+  "VerificationStatus": {
+    "PASSED": "PASSED",
+    "FAILED": "FAILED",
+    "FLAGGED": "FLAGGED",
+    "PENDING": "PENDING"
+  },
+  "FieldType": {
+    "TEXT": "text",
+    "EMAIL": "email",
+    "TEL": "tel",
+    "DATE": "date",
+    "NUMBER": "number",
+    "SELECT": "select",
+    "RADIO": "radio",
+    "CHECKBOX": "checkbox",
+    "FILE": "file",
+    "TEXTAREA": "textarea",
+    "PASSWORD": "password",
+    "PAUSE": "pause",
+    "HIDDEN": "hidden"
+  },
+  "UserRole": {
+    "USER": "USER",
+    "ADMIN": "ADMIN",
+    "OPERATOR": "OPERATOR"
+  },
+  "Gender": {
+    "MALE": "MALE",
+    "FEMALE": "FEMALE",
+    "OTHER": "OTHER",
+    "PREFER_NOT_TO_SAY": "PREFER_NOT_TO_SAY"
+  },
+  "FieldSource": {
+    "USER_DIRECT": "USER_DIRECT",
+    "PROFILE_INFERRED": "PROFILE_INFERRED",
+    "DOCUMENT_EXTRACTED": "DOCUMENT_EXTRACTED",
+    "AI_INFERRED": "AI_INFERRED"
+  }
+}

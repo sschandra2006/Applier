@@ -1,16 +1,21 @@
 {
   "name": "shared",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "version": "2.0.0",
+  "description": "Applier 2.0 Canonical Shared Contract Layer",
+  "main": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./enums": "./enums/index.js",
+    "./schemas": "./schemas/index.json",
+    "./validators": "./validators/index.js",
+    "./adapters": "./validators/adapters.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "scripts": {
+    "test": "node --test"
+  },
   "dependencies": {
+    "ajv": "^8.20.0",
     "zod": "^4.4.3"
   }
 }

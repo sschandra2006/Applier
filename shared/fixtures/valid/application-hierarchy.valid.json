@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "2.0.0",
+  "applicationId": "app_hierarchy_test_001",
+  "portalDomain": "careers.enterprise-portal.org",
+  "totalFieldCount": 50,
+  "pages": [
+    {
+      "pageId": "page_personal_edu",
+      "pageNumber": 1,
+      "pageType": "APPLICATION_FORM",
+      "pageFingerprint": "dom_fp_99214488",
+      "sections": [
+        {
+          "sectionId": "sec_personal_details",
+          "sectionName": "Personal Information",
+          "sectionPurpose": "Identify applicant and contact info",
+          "sectionFingerprint": "sec_fp_1001",
+          "status": "COMPLETED",
+          "fieldGroups": [
+            {
+              "groupId": "grp_identity",
+              "groupName": "Legal Identity",
+              "fields": [
+                {
+                  "fieldId": "fld_fullName",
+                  "name": "fullName",
+                  "type": "text",
+                  "label": "Legal Full Name",
+                  "selector": "#fullName",
+                  "semanticTarget": "applicant.fullName",
+                  "required": true,
+                  "value": "Dr. Sarah Connor"
+                },
+                {
+                  "fieldId": "fld_dob",
+                  "name": "dob",
+                  "type": "date",
+                  "label": "Date of Birth",
+                  "selector": "#dob",
+                  "semanticTarget": "applicant.dateOfBirth",
+                  "required": true,
+                  "value": "1990-05-12"
+                }
+              ]
+            },
+            {
+              "groupId": "grp_contact",
+              "groupName": "Contact Coordinates",
+              "fields": [
+                {
+                  "fieldId": "fld_email",
+                  "name": "email",
+                  "type": "email",
+                  "label": "Email Address",
+                  "selector": "#email",
+                  "semanticTarget": "applicant.email",
+                  "required": true,
+                  "value": "sarah.connor@example.com"
+                },
+                {
+                  "fieldId": "fld_phone",
+                  "name": "phone",
+                  "type": "tel",
+                  "label": "Primary Phone",
+                  "selector": "#phone",
+                  "semanticTarget": "applicant.phone",
+                  "required": true,
+                  "value": "+15559876543"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "sectionId": "sec_education",
+          "sectionName": "Academic Background",
+          "sectionPurpose": "Highest qualification and institution",
+          "sectionFingerprint": "sec_fp_1002",
+          "status": "ACTIVE",
+          "fieldGroups": [
+            {
+              "groupId": "grp_higher_edu",
+              "groupName": "University Degree",
+              "fields": [
+                {
+                  "fieldId": "fld_degree",
+                  "name": "degree",
+                  "type": "text",
+                  "label": "Degree Conferred",
+                  "selector": "#degree",
+                  "semanticTarget": "education.degree",
+                  "required": true,
+                  "value": "Ph.D. Computer Engineering"
+                },
+                {
+                  "fieldId": "fld_college",
+                  "name": "college",
+                  "type": "text",
+                  "label": "Institution Name",
+                  "selector": "#college",
+                  "semanticTarget": "education.college",
+                  "required": true,
+                  "value": "California Institute of Technology"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "activeSectionId": "sec_education",
+  "optimizedContextMetrics": {
+    "monolithicTokenEstimate": 8500,
+    "optimizedSectionTokens": 820,
+    "tokenSavingsRatio": 0.903,
+    "cacheHit": false
+  }
+}

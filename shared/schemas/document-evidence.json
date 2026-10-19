@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/document-evidence.json",
+  "title": "DocumentEvidence",
+  "description": "Traceable evidence linkage between an extracted applicant answer and a document segment.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "evidenceId": {
+      "type": "string"
+    },
+    "documentId": {
+      "type": "string"
+    },
+    "fieldKey": {
+      "type": "string"
+    },
+    "page": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "region": {
+      "type": "object",
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "width": { "type": "number" },
+        "height": { "type": "number" },
+        "unit": { "type": "string", "default": "pixel" }
+      },
+      "additionalProperties": true
+    },
+    "extractionMethod": {
+      "type": "string",
+      "enum": ["OCR", "VISION_LLM", "HYBRID", "PATTERN", "MANUAL"],
+      "default": "OCR"
+    },
+    "rawValue": {
+      "description": "Original raw text/string detected from document."
+    },
+    "normalizedValue": {
+      "description": "Cleaned, standardized value ready for knowledge integration."
+    },
+    "extractedValue": {
+      "type": "string"
+    },
+    "boundingBox": {
+      "type": "object",
+      "properties": {
+        "pageNumber": { "type": "integer", "minimum": 1 },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "width": { "type": "number" },
+        "height": { "type": "number" }
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "isBlurry": { "type": "boolean", "default": false },
+        "isCropped": { "type": "boolean", "default": false },
+        "isUnreadable": { "type": "boolean", "default": false },
+        "missingPages": { "type": "boolean", "default": false },
+        "qualityScore": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      },
+      "additionalProperties": true
+    },
+    "verifier": {
+      "type": "string",
+      "enum": ["OCR", "VISION_LLM", "USER_CONFIRMED"],
+      "default": "VISION_LLM"
+    },
+    "verifiedAt": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "evidenceId", "documentId", "fieldKey"],
+  "additionalProperties": true
+}

@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "2.0.0",
+  "applicantId": "app_98765432-1234-5678-abcd-1234567890ab",
+  "userId": "usr_test_user_01",
+  "identity": {
+    "fullName": {
+      "value": "Aarav Sharma",
+      "source": "PROFILE",
+      "confidence": 0.95,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z",
+      "evidence": "Imported from primary profile record."
+    },
+    "dateOfBirth": {
+      "value": "14-08-2006",
+      "source": "DOCUMENT",
+      "confidence": 0.98,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z",
+      "evidence": "Extracted from Aadhaar card ID aadhaar_01."
+    },
+    "gender": {
+      "value": "MALE",
+      "source": "PROFILE",
+      "confidence": 0.90,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    }
+  },
+  "contact": {
+    "email": {
+      "value": "aarav.sharma@example.com",
+      "source": "PROFILE",
+      "confidence": 1.0,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    },
+    "phone": {
+      "value": "+919876543210",
+      "source": "PROFILE",
+      "confidence": 0.95,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    }
+  },
+  "address": {
+    "street": {
+      "value": "Flat 402, Lotus Towers",
+      "source": "PROFILE",
+      "confidence": 0.85,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    },
+    "city": {
+      "value": "Bengaluru",
+      "source": "PROFILE",
+      "confidence": 0.90,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    },
+    "state": {
+      "value": "Karnataka",
+      "source": "PROFILE",
+      "confidence": 0.90,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    },
+    "pincode": {
+      "value": "560001",
+      "source": "PROFILE",
+      "confidence": 0.90,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    }
+  },
+  "education": {
+    "college": {
+      "value": "Indian Institute of Science",
+      "source": "DOCUMENT",
+      "confidence": 0.95,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z",
+      "evidence": "Extracted from enrollment letter."
+    },
+    "degree": {
+      "value": "Bachelor of Technology",
+      "source": "DOCUMENT",
+      "confidence": 0.92,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    },
+    "cgpa": {
+      "value": "9.2",
+      "source": "DOCUMENT",
+      "confidence": 0.95,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    }
+  },
+  "family": {
+    "fatherName": {
+      "value": "Rajesh Sharma",
+      "source": "DOCUMENT",
+      "confidence": 0.95,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z",
+      "evidence": "Extracted from 10th marksheet certificate."
+    },
+    "motherName": {
+      "value": "Sunita Sharma",
+      "source": "PROFILE",
+      "confidence": 0.80,
+      "verificationStatus": "CONFIRMATION_REQUIRED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    }
+  },
+  "financial": {
+    "annualIncome": {
+      "value": "450000",
+      "source": "DOCUMENT",
+      "confidence": 0.96,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z",
+      "evidence": "Extracted from Tehsildar Income Certificate."
+    }
+  },
+  "preferences": {
+    "preferredLanguage": {
+      "value": "English",
+      "source": "SYSTEM_DERIVED",
+      "confidence": 0.70,
+      "verificationStatus": "CONFIRMATION_REQUIRED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    }
+  },
+  "documents": {
+    "aadhaarCard": {
+      "value": "doc_aadhaar_001",
+      "source": "DOCUMENT",
+      "confidence": 1.0,
+      "verificationStatus": "VERIFIED",
+      "updatedAt": "2026-10-03T12:00:00.000Z"
+    }
+  },
+  "conflicts": [],
+  "metadata": {
+    "version": 1,
+    "createdAt": "2026-10-03T12:00:00.000Z",
+    "updatedAt": "2026-10-03T12:00:00.000Z",
+    "totalFields": 13,
+    "verifiedFields": 11,
+    "conflictCount": 0
+  }
+}

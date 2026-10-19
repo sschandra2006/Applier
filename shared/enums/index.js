@@ -1,0 +1,527 @@
+/**
+ * Canonical System Enums — Applier 2.0
+ * Single source of truth for all statuses, types, and categories.
+ */
+
+export const SchemaVersion = "2.0.0";
+
+export const JobStatus = Object.freeze({
+  QUEUED: "QUEUED",
+  RUNNING: "RUNNING",
+  PAUSED_OTP: "PAUSED_OTP",
+  PAUSED_CAPTCHA: "PAUSED_CAPTCHA",
+  PAUSED_PAYMENT: "PAUSED_PAYMENT",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+  CANCELLED: "CANCELLED"
+});
+
+export const ExecutionStepType = Object.freeze({
+  NAVIGATE: "navigate",
+  FILL: "fill",
+  CLICK: "click",
+  SELECT: "select",
+  UPLOAD: "upload",
+  PAUSE: "pause",
+  WAIT: "wait",
+  SCREENSHOT: "screenshot",
+  SUBMIT: "submit"
+});
+
+export const PauseReason = Object.freeze({
+  OTP: "OTP",
+  CAPTCHA: "CAPTCHA",
+  PAYMENT: "PAYMENT",
+  MANUAL_REVIEW: "MANUAL_REVIEW"
+});
+
+export const InterviewStatus = Object.freeze({
+  NOT_STARTED: "NOT_STARTED",
+  IN_PROGRESS: "IN_PROGRESS",
+  PAUSED: "PAUSED",
+  COMPLETED: "COMPLETED"
+});
+
+export const DocumentType = Object.freeze({
+  RESUME: "RESUME",
+  PASSPORT: "PASSPORT",
+  AADHAAR: "AADHAAR",
+  PAN: "PAN",
+  DRIVING_LICENCE: "DRIVING_LICENCE",
+  BIRTH_CERTIFICATE: "BIRTH_CERTIFICATE",
+  MARKSHEET: "MARKSHEET",
+  INCOME_CERTIFICATE: "INCOME_CERTIFICATE",
+  FEE_RECEIPT: "FEE_RECEIPT",
+  PHOTO: "PHOTO",
+  SIGNATURE: "SIGNATURE",
+  OTHER: "OTHER"
+});
+
+export const ProvenanceSource = Object.freeze({
+  RESUME_PARSED: "RESUME_PARSED",
+  USER_CONFIRMED: "USER_CONFIRMED",
+  USER_EDITED: "USER_EDITED",
+  MANUAL_ENTRY: "MANUAL_ENTRY"
+});
+
+export const ProfileVerificationStatus = Object.freeze({
+  UNVERIFIED: "UNVERIFIED",
+  VERIFIED: "VERIFIED",
+  PARTIALLY_VERIFIED: "PARTIALLY_VERIFIED"
+});
+
+export const MasterResumeStatus = Object.freeze({
+  UPLOADED: "UPLOADED",
+  PARSING: "PARSING",
+  PARSED: "PARSED",
+  FAILED: "FAILED"
+});
+
+export const ResumeTemplateId = Object.freeze({
+  ATS_SINGLE_COLUMN: "ATS_SINGLE_COLUMN",
+  TECHNICAL: "TECHNICAL",
+  MODERN_PROFESSIONAL: "MODERN_PROFESSIONAL"
+});
+
+export const GeneratedResumeStatus = Object.freeze({
+  DRAFT: "DRAFT",
+  GENERATING: "GENERATING",
+  COMPILING: "COMPILING",
+  VALIDATED: "VALIDATED",
+  FAILED: "FAILED",
+  ARCHIVED: "ARCHIVED"
+});
+
+export const WorkflowState = Object.freeze({
+  INITIALIZING: "INITIALIZING",
+  ANALYZING_JOB: "ANALYZING_JOB",
+  ANALYZING: "ANALYZING",
+  CHECKING_PROFILE: "CHECKING_PROFILE",
+  QUESTIONS_PENDING: "QUESTIONS_PENDING",
+  AWAITING_USER_RESPONSE: "AWAITING_USER_RESPONSE",
+  UPDATING_PROFILE: "UPDATING_PROFILE",
+  RECHECKING_REQUIREMENTS: "RECHECKING_REQUIREMENTS",
+  READY_FOR_RESUME_GENERATION: "READY_FOR_RESUME_GENERATION",
+  GENERATING_RESUME: "GENERATING_RESUME",
+  VALIDATING_RESUME: "VALIDATING_RESUME",
+  FILLING_APPLICATION: "FILLING_APPLICATION",
+  AWAITING_USER_REVIEW: "AWAITING_USER_REVIEW",
+  READY_FOR_SUBMISSION: "READY_FOR_SUBMISSION",
+  SUBMITTING: "SUBMITTING",
+  SUBMITTED: "SUBMITTED",
+  FAILED: "FAILED",
+  SUBMISSION_STATUS_UNKNOWN: "SUBMISSION_STATUS_UNKNOWN",
+  BLOCKED_BY_REQUIRED_INFO: "BLOCKED_BY_REQUIRED_INFO",
+  CANCELLED: "CANCELLED"
+});
+
+export const DocumentValidationStatus = Object.freeze({
+  PENDING: "PENDING",
+  VALID: "VALID",
+  INVALID: "INVALID",
+  EXPIRED: "EXPIRED",
+  UNREADABLE: "UNREADABLE"
+});
+
+export const ApplicationStatus = Object.freeze({
+  DRAFT: "DRAFT",
+  READY: "READY",
+  SUBMITTING: "SUBMITTING",
+  SUBMITTED: "SUBMITTED",
+  SUBMISSION_UNCERTAIN: "SUBMISSION_UNCERTAIN",
+  SUBMISSION_FAILED: "SUBMISSION_FAILED",
+  IN_REVIEW: "IN_REVIEW",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED"
+});
+
+export const VerificationStatus = Object.freeze({
+  PASSED: "PASSED",
+  FAILED: "FAILED",
+  FLAGGED: "FLAGGED",
+  PENDING: "PENDING"
+});
+
+export const FieldType = Object.freeze({
+  TEXT: "text",
+  EMAIL: "email",
+  TEL: "tel",
+  DATE: "date",
+  NUMBER: "number",
+  SELECT: "select",
+  RADIO: "radio",
+  CHECKBOX: "checkbox",
+  FILE: "file",
+  TEXTAREA: "textarea",
+  PASSWORD: "password",
+  PAUSE: "pause",
+  HIDDEN: "hidden"
+});
+
+export const UserRole = Object.freeze({
+  USER: "USER",
+  ADMIN: "ADMIN",
+  OPERATOR: "OPERATOR"
+});
+
+export const Gender = Object.freeze({
+  MALE: "MALE",
+  FEMALE: "FEMALE",
+  OTHER: "OTHER",
+  PREFER_NOT_TO_SAY: "PREFER_NOT_TO_SAY"
+});
+
+export const FieldSource = Object.freeze({
+  USER_DIRECT: "USER_DIRECT",
+  PROFILE_INFERRED: "PROFILE_INFERRED",
+  DOCUMENT_EXTRACTED: "DOCUMENT_EXTRACTED",
+  AI_INFERRED: "AI_INFERRED"
+});
+
+export const KnowledgeSourceType = Object.freeze({
+  PROFILE: "PROFILE",
+  DOCUMENT: "DOCUMENT",
+  USER_INPUT: "USER_INPUT",
+  PREVIOUS_APPLICATION: "PREVIOUS_APPLICATION",
+  SYSTEM_DERIVED: "SYSTEM_DERIVED"
+});
+
+export const KnowledgeVerificationStatus = Object.freeze({
+  VERIFIED: "VERIFIED",
+  UNVERIFIED: "UNVERIFIED",
+  CONFIRMATION_REQUIRED: "CONFIRMATION_REQUIRED",
+  CONFLICT: "CONFLICT"
+});
+
+export const MappingStatus = Object.freeze({
+  MATCHED: "MATCHED",
+  AMBIGUOUS: "AMBIGUOUS",
+  MISSING: "MISSING",
+  CONFLICT: "CONFLICT",
+  REQUIRES_USER: "REQUIRES_USER"
+});
+
+export const LocatorStrategy = Object.freeze({
+  ACCESSIBLE_ROLE_NAME: "ACCESSIBLE_ROLE_NAME",
+  LABEL: "LABEL",
+  SEMANTIC_RELATIONSHIP: "SEMANTIC_RELATIONSHIP",
+  PLACEHOLDER: "PLACEHOLDER",
+  NAME: "NAME",
+  STABLE_TEST_ID: "STABLE_TEST_ID",
+  STABLE_DOM_ATTRIBUTES: "STABLE_DOM_ATTRIBUTES",
+  CSS: "CSS",
+  XPATH: "XPATH",
+  LOCATOR_NOT_FOUND: "LOCATOR_NOT_FOUND"
+});
+
+export const ActionVerificationStatus = Object.freeze({
+  PASSED: "PASSED",
+  FAILED: "FAILED",
+  SKIPPED: "SKIPPED",
+  RECOVERED: "RECOVERED"
+});
+
+export const ExecutionLoopPhase = Object.freeze({
+  OBSERVE: "OBSERVE",
+  PLAN: "PLAN",
+  POLICY_CHECK: "POLICY_CHECK",
+  ACT: "ACT",
+  VERIFY: "VERIFY",
+  UPDATE_STATE: "UPDATE_STATE",
+  RECOVERY: "RECOVERY"
+});
+
+export const RecoveryStrategy = Object.freeze({
+  RETRY: "RETRY",
+  CLEAR_AND_RETYPE: "CLEAR_AND_RETYPE",
+  DOM_DISPATCH: "DOM_DISPATCH",
+  RE_RESOLVE_LOCATOR: "RE_RESOLVE_LOCATOR",
+  ADAPT_VALUE_FORMAT: "ADAPT_VALUE_FORMAT",
+  PAUSE_FOR_USER: "PAUSE_FOR_USER",
+  ABORT: "ABORT"
+});
+
+export const ActionRiskCategory = Object.freeze({
+  LOW_RISK: "LOW_RISK",
+  NORMAL: "NORMAL",
+  SENSITIVE: "SENSITIVE",
+  CRITICAL: "CRITICAL"
+});
+
+export const PolicyDecision = Object.freeze({
+  ALLOWED: "ALLOWED",
+  BLOCKED: "BLOCKED",
+  REQUIRES_CONFIRMATION: "REQUIRES_CONFIRMATION",
+  REQUIRES_USER: "REQUIRES_USER"
+});
+
+export const PolicyViolationReason = Object.freeze({
+  MISSING_USER_CONFIRMATION: "MISSING_USER_CONFIRMATION",
+  FORM_MUTATED_AFTER_CONFIRMATION: "FORM_MUTATED_AFTER_CONFIRMATION",
+  LOW_CONFIDENCE_FIELD: "LOW_CONFIDENCE_FIELD",
+  UNRESOLVED_CONFLICT: "UNRESOLVED_CONFLICT",
+  UNRESOLVED_REQUIRED_FIELDS: "UNRESOLVED_REQUIRED_FIELDS",
+  INVALID_CONFIRMATION_TOKEN: "INVALID_CONFIRMATION_TOKEN",
+  EXPIRED_CONFIRMATION_TOKEN: "EXPIRED_CONFIRMATION_TOKEN",
+  PAGE_STATE_MISMATCH: "PAGE_STATE_MISMATCH",
+  UNSAFE_PROTOCOL: "UNSAFE_PROTOCOL"
+});
+
+export const ReviewStatus = Object.freeze({
+  PENDING_REVIEW: "PENDING_REVIEW",
+  READY_FOR_CONFIRMATION: "READY_FOR_CONFIRMATION",
+  CONFIRMED: "CONFIRMED",
+  LOCKED: "LOCKED",
+  MUTATED_INVALIDATED: "MUTATED_INVALIDATED",
+  HAS_CONFLICTS: "HAS_CONFLICTS",
+  INCOMPLETE: "INCOMPLETE"
+});
+
+export const ReviewFieldStatus = Object.freeze({
+  VERIFIED: "VERIFIED",
+  UNVERIFIED: "UNVERIFIED",
+  CONFIRMATION_REQUIRED: "CONFIRMATION_REQUIRED",
+  MISSING: "MISSING",
+  CONFLICT: "CONFLICT",
+  OPTIONAL_EMPTY: "OPTIONAL_EMPTY"
+});
+
+export const ReviewValidationStatus = Object.freeze({
+  VERIFIED: "Verified",
+  VALID: "Valid",
+  INVALID: "Invalid",
+  WARNING: "Warning",
+  PENDING: "Pending",
+  OPTIONAL: "Optional",
+  MISSING_REQUIRED: "Missing Required"
+});
+
+export const FailureClass = Object.freeze({
+  SELECTOR_FAILURE: "selector failure",
+  ELEMENT_MISSING: "element missing",
+  TIMEOUT: "timeout",
+  NAVIGATION_FAILURE: "navigation failure",
+  SESSION_EXPIRED: "session expired",
+  UNEXPECTED_MODAL: "unexpected modal",
+  VALIDATION_FAILURE: "validation failure",
+  UPLOAD_REJECTION: "upload rejection",
+  PAGE_CHANGED: "page changed",
+  BROWSER_CRASH: "browser crash"
+});
+
+export const RecoveryLevel = Object.freeze({
+  RETRY_SAME_ACTION: "RETRY_SAME_ACTION",
+  RE_OBSERVE: "RE_OBSERVE",
+  RE_RESOLVE_LOCATOR: "RE_RESOLVE_LOCATOR",
+  ADAPTIVE_REASONING: "ADAPTIVE_REASONING",
+  REFRESH_SESSION: "REFRESH_SESSION",
+  HUMAN_CHECKPOINT: "HUMAN_CHECKPOINT"
+});
+
+export const RecoveryResultStatus = Object.freeze({
+  SUCCESS: "SUCCESS",
+  FAILED: "FAILED",
+  ESCALATED: "ESCALATED",
+  CHECKPOINT_CREATED: "CHECKPOINT_CREATED"
+});
+
+export const ResumptionPhase = Object.freeze({
+  RESTORE_JOB: "RESTORE_JOB",
+  RESTORE_SESSION: "RESTORE_SESSION",
+  VERIFY_PAGE: "VERIFY_PAGE",
+  RE_OBSERVE: "RE_OBSERVE",
+  RECONCILE_STATE: "RECONCILE_STATE",
+  CONTINUE: "CONTINUE"
+});
+
+export const DurablePauseReason = Object.freeze({
+  OTP: "OTP",
+  CAPTCHA: "CAPTCHA",
+  PAYMENT: "PAYMENT",
+  MANUAL_REVIEW: "MANUAL_REVIEW",
+  BROWSER_CRASH: "BROWSER_CRASH",
+  WORKER_RESTART: "WORKER_RESTART",
+  API_RESTART: "API_RESTART",
+  NETWORK_FAILURE: "NETWORK_FAILURE",
+  TIMEOUT: "TIMEOUT",
+  USER_LEFT: "USER_LEFT"
+});
+
+export const SubmissionStatus = Object.freeze({
+  SUBMITTED: "SUBMITTED",
+  SUBMISSION_FAILED: "SUBMISSION_FAILED",
+  SUBMISSION_UNCERTAIN: "SUBMISSION_UNCERTAIN",
+  SUBMISSION_TIMEOUT: "SUBMISSION_TIMEOUT",
+  SUBMISSION_DUPLICATE_BLOCKED: "SUBMISSION_DUPLICATE_BLOCKED"
+});
+
+export const SubmissionSignalType = Object.freeze({
+  SUCCESS_PAGE: "SUCCESS_PAGE",
+  CONFIRMATION_TEXT: "CONFIRMATION_TEXT",
+  APPLICATION_NUMBER: "APPLICATION_NUMBER",
+  RECEIPT_DOWNLOAD: "RECEIPT_DOWNLOAD",
+  URL_TRANSITION: "URL_TRANSITION",
+  DOM_STATE: "DOM_STATE"
+});
+
+export const AutomationEventType = Object.freeze({
+  JOB_CREATED: "JOB_CREATED",
+  JOB_STARTED: "JOB_STARTED",
+  PAGE_CHANGED: "PAGE_CHANGED",
+  FIELD_DETECTED: "FIELD_DETECTED",
+  FIELD_MAPPED: "FIELD_MAPPED",
+  FIELD_FILLED: "FIELD_FILLED",
+  FIELD_VERIFIED: "FIELD_VERIFIED",
+  DOCUMENT_UPLOADED: "DOCUMENT_UPLOADED",
+  CHECKPOINT_REQUIRED: "CHECKPOINT_REQUIRED",
+  USER_INPUT_REQUIRED: "USER_INPUT_REQUIRED",
+  RECOVERY_STARTED: "RECOVERY_STARTED",
+  RECOVERY_COMPLETED: "RECOVERY_COMPLETED",
+  SUBMISSION_STARTED: "SUBMISSION_STARTED",
+  SUBMISSION_VERIFIED: "SUBMISSION_VERIFIED",
+  JOB_COMPLETED: "JOB_COMPLETED",
+  JOB_FAILED: "JOB_FAILED"
+});
+
+export const KnowledgeTier = Object.freeze({
+  CANDIDATE: "CANDIDATE",
+  TRUSTED: "TRUSTED",
+  DEPRECATED: "DEPRECATED"
+});
+
+export const WebsiteFingerprintStatus = Object.freeze({
+  ACTIVE: "ACTIVE",
+  STALE: "STALE",
+  INVALIDATED: "INVALIDATED",
+  SUPERSEDED: "SUPERSEDED"
+});
+
+export const ModelRoute = Object.freeze({
+  DETERMINISTIC: "DETERMINISTIC",
+  FAST: "FAST",
+  VISION: "VISION",
+  STRONG: "STRONG"
+});
+
+export const RoutingTaskType = Object.freeze({
+  CLASSIFICATION: "CLASSIFICATION",
+  NORMALIZATION: "NORMALIZATION",
+  SIMPLE_EXTRACTION: "SIMPLE_EXTRACTION",
+  DOCUMENT_ANALYSIS: "DOCUMENT_ANALYSIS",
+  SCREENSHOT_ANALYSIS: "SCREENSHOT_ANALYSIS",
+  VISUAL_UI: "VISUAL_UI",
+  AMBIGUITY_RESOLUTION: "AMBIGUITY_RESOLUTION",
+  COMPLEX_WORKFLOW: "COMPLEX_WORKFLOW",
+  RECOVERY: "RECOVERY",
+  CONFLICTING_EVIDENCE: "CONFLICTING_EVIDENCE",
+  DETERMINISTIC_EXTRACTION: "DETERMINISTIC_EXTRACTION"
+});
+
+export const FallbackStatus = Object.freeze({
+  RETRY: "RETRY",
+  ESCALATED: "ESCALATED",
+  HUMAN_CHECKPOINT: "HUMAN_CHECKPOINT",
+  SUCCESS: "SUCCESS"
+});
+
+export const SecurityAuditEventType = Object.freeze({
+  SSRF_BLOCKED: "SSRF_BLOCKED",
+  MALICIOUS_UPLOAD_BLOCKED: "MALICIOUS_UPLOAD_BLOCKED",
+  OVERSIZED_UPLOAD_BLOCKED: "OVERSIZED_UPLOAD_BLOCKED",
+  UNAUTHORIZED_ACCESS_ATTEMPT: "UNAUTHORIZED_ACCESS_ATTEMPT",
+  TOKEN_EXPIRED: "TOKEN_EXPIRED",
+  TOKEN_REPLAY_ATTEMPT: "TOKEN_REPLAY_ATTEMPT",
+  PATH_TRAVERSAL_ATTEMPT: "PATH_TRAVERSAL_ATTEMPT",
+  SECRET_LEAK_PREVENTED: "SECRET_LEAK_PREVENTED"
+});
+
+export const SecurityThreatLevel = Object.freeze({
+  LOW: "LOW",
+  MEDIUM: "MEDIUM",
+  HIGH: "HIGH",
+  CRITICAL: "CRITICAL"
+});
+
+export const ScalingAlertType = Object.freeze({
+  HIGH_FAILURE_RATE: "HIGH_FAILURE_RATE",
+  WORKER_CRASHES: "WORKER_CRASHES",
+  QUEUE_BACKLOG: "QUEUE_BACKLOG",
+  MEMORY_PRESSURE: "MEMORY_PRESSURE",
+  AI_FAILURES: "AI_FAILURES",
+  DATABASE_FAILURES: "DATABASE_FAILURES"
+});
+
+export const AlertSeverity = Object.freeze({
+  INFO: "INFO",
+  WARNING: "WARNING",
+  CRITICAL: "CRITICAL"
+});
+
+export const ScalingAction = Object.freeze({
+  SCALE_UP: "SCALE_UP",
+  SCALE_DOWN: "SCALE_DOWN",
+  NOOP: "NOOP",
+  THROTTLE: "THROTTLE"
+});
+
+export const WorkerHealthStatus = Object.freeze({
+  HEALTHY: "HEALTHY",
+  DEGRADED: "DEGRADED",
+  CRITICAL: "CRITICAL",
+  UNHEALTHY: "UNHEALTHY"
+});
+
+export default {
+  SchemaVersion,
+  JobStatus,
+  ExecutionStepType,
+  PauseReason,
+  InterviewStatus,
+  DocumentType,
+  DocumentValidationStatus,
+  ApplicationStatus,
+  VerificationStatus,
+  FieldType,
+  UserRole,
+  Gender,
+  FieldSource,
+  KnowledgeSourceType,
+  KnowledgeVerificationStatus,
+  MappingStatus,
+  LocatorStrategy,
+  ActionVerificationStatus,
+  ExecutionLoopPhase,
+  RecoveryStrategy,
+  ActionRiskCategory,
+  PolicyDecision,
+  PolicyViolationReason,
+  ReviewStatus,
+  ReviewFieldStatus,
+  ReviewValidationStatus,
+  FailureClass,
+  RecoveryLevel,
+  RecoveryResultStatus,
+  ResumptionPhase,
+  DurablePauseReason,
+  SubmissionStatus,
+  SubmissionSignalType,
+  AutomationEventType,
+  KnowledgeTier,
+  WebsiteFingerprintStatus,
+  ModelRoute,
+  RoutingTaskType,
+  FallbackStatus,
+  SecurityAuditEventType,
+  SecurityThreatLevel,
+  ScalingAlertType,
+  AlertSeverity,
+  ScalingAction,
+  WorkerHealthStatus,
+  ProvenanceSource,
+  ProfileVerificationStatus,
+  MasterResumeStatus,
+  ResumeTemplateId,
+  GeneratedResumeStatus
+};
+
+

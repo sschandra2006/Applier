@@ -4,6 +4,12 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
+import {
+  defaultFileSecurityService,
+  defaultDocumentEncryptionService,
+  defaultJobAuthorizationService,
+  defaultSecurityAuditService
+} from '../security/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,12 +64,33 @@ export const uploadDocument = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'expectedType is required' });
     }
 
-    // Check if user already has this type of document, if so, we can either replace or just add new
-    // We will find and delete the old one to save space
+    const uploadedPath = req.file.path || path.join(uploadDir, req.file.filename);
+    const fileBuffer = fs.readFileSync(uploadedPath);
+
+    // 1. File Security Verification (Extension, Magic Bytes, Size, Malware Scan)
+    try {
+      await defaultFileSecurityService.validateFile({
+        filename: req.file.originalname,
+        buffer: fileBuffer,
+        size: req.file.size
+      });
+    } catch (secErr) {
+      if (fs.existsSync(uploadedPath)) fs.unlinkSync(uploadedPath);
+      defaultSecurityAuditService.logEvent({
+        eventType: secErr.code === 'MALWARE_DETECTED' ? 'MALICIOUS_UPLOAD_BLOCKED' : 'OVERSIZED_UPLOAD_BLOCKED',
+        userId: req.user?._id,
+        details: { filename: req.file.originalname, error: secErr.message, code: secErr.code }
+      });
+      return res.status(400).json({ success: false, error: secErr.message, code: secErr.code });
+    }
+
+    // 2. Encrypt sensitive document at rest
+    const encrypted = defaultDocumentEncryptionService.encryptBuffer(fileBuffer);
+    fs.writeFileSync(uploadedPath, encrypted.packaged);
+
+    // Check if user already has this type of document, if so, remove old file
     const existingDoc = await Document.findOne({ userId: req.user._id, type: expectedType });
-    
     if (existingDoc) {
-      // Try to remove old file
       const oldFilePath = path.join(uploadDir, path.basename(existingDoc.fileUrl));
       if (fs.existsSync(oldFilePath)) {
         fs.unlinkSync(oldFilePath);
@@ -76,10 +103,10 @@ export const uploadDocument = async (req, res, next) => {
     const newDocument = new Document({
       userId: req.user._id,
       type: expectedType,
-      fileName: req.file.originalname,
+      fileName: defaultFileSecurityService.sanitizeFilename(req.file.originalname),
       fileUrl: fileUrl,
       mimeType: req.file.mimetype,
-      validationStatus: 'VALID' // Auto valid for now
+      validationStatus: 'VALID'
     });
 
     await newDocument.save();
@@ -99,14 +126,42 @@ export const getDocuments = async (req, res, next) => {
   }
 };
 
-export const deleteDocument = async (req, res, next) => {
+export const getDocumentById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const document = await Document.findOne({ _id: id, userId: req.user._id });
+    const document = await Document.findById(id);
 
     if (!document) {
       return res.status(404).json({ success: false, error: 'Document not found' });
     }
+
+    defaultJobAuthorizationService.authorizeDocumentAccess(req.user, document);
+
+    res.status(200).json({ success: true, data: document });
+  } catch (error) {
+    if (error.name === 'UnauthorizedAccessError') {
+      defaultSecurityAuditService.logUnauthorizedAccess({
+        resourceType: 'DOCUMENT',
+        resourceId: req.params.id,
+        userId: req.user?._id,
+        reason: error.message
+      });
+      return res.status(403).json({ success: false, error: error.message, code: error.code });
+    }
+    next(error);
+  }
+};
+
+export const deleteDocument = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const document = await Document.findById(id);
+
+    if (!document) {
+      return res.status(404).json({ success: false, error: 'Document not found' });
+    }
+
+    defaultJobAuthorizationService.authorizeDocumentAccess(req.user, document);
 
     const filePath = path.join(uploadDir, path.basename(document.fileUrl));
     if (fs.existsSync(filePath)) {
@@ -117,6 +172,15 @@ export const deleteDocument = async (req, res, next) => {
 
     res.status(200).json({ success: true, data: { _id: id } });
   } catch (error) {
+    if (error.name === 'UnauthorizedAccessError') {
+      defaultSecurityAuditService.logUnauthorizedAccess({
+        resourceType: 'DOCUMENT',
+        resourceId: req.params.id,
+        userId: req.user?._id,
+        reason: error.message
+      });
+      return res.status(403).json({ success: false, error: error.message, code: error.code });
+    }
     next(error);
   }
 };

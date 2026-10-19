@@ -20,7 +20,18 @@ const interviewStateSchema = new mongoose.Schema({
   validationErrors: { type: Map, of: String, default: {} },
   
   lastQuestionId: { type: String },
-  status: { type: String, enum: ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'PAUSED'], default: 'NOT_STARTED' }
+  status: { type: String, enum: ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'PAUSED'], default: 'NOT_STARTED' },
+  
+  // Phase 13: Confirmation Token & Submission Lock
+  confirmationToken: { type: String, default: null },
+  fieldStateHash: { type: String, default: null },
+  isLocked: { type: Boolean, default: false },
+  confirmedAt: { type: Date, default: null },
+  reviewStatus: {
+    type: String,
+    enum: ['PENDING_REVIEW', 'READY_FOR_CONFIRMATION', 'CONFIRMED', 'LOCKED', 'MUTATED_INVALIDATED', 'HAS_CONFLICTS', 'INCOMPLETE'],
+    default: 'PENDING_REVIEW'
+  }
 }, { timestamps: true, versionKey: false });
 
 export const InterviewState = mongoose.model('InterviewState', interviewStateSchema);

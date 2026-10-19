@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/security-audit-event.json",
+  "title": "SecurityAuditEvent",
+  "description": "Canonical contract for security hardening audit events (Phase 23).",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "eventId": {
+      "type": "string",
+      "pattern": "^sae_[a-zA-Z0-9_.-]+$"
+    },
+    "eventType": {
+      "type": "string",
+      "enum": [
+        "SSRF_BLOCKED",
+        "MALICIOUS_UPLOAD_BLOCKED",
+        "OVERSIZED_UPLOAD_BLOCKED",
+        "UNAUTHORIZED_ACCESS_ATTEMPT",
+        "TOKEN_EXPIRED",
+        "TOKEN_REPLAY_ATTEMPT",
+        "PATH_TRAVERSAL_ATTEMPT",
+        "SECRET_LEAK_PREVENTED"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "userId": {
+      "type": ["string", "null"]
+    },
+    "ipAddress": {
+      "type": ["string", "null"]
+    },
+    "resourceId": {
+      "type": ["string", "null"]
+    },
+    "details": {
+      "type": "object"
+    },
+    "blocked": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "eventType",
+    "severity",
+    "timestamp",
+    "blocked"
+  ]
+}

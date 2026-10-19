@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "2.0.0",
+  "modelId": "sem_fixture_valid_001",
+  "observationId": "obs_fixture_valid_001",
+  "url": "https://scholarships.gov.in/fresh-application",
+  "pageType": "APPLICATION_FORM",
+  "pageTypeConfidence": 0.95,
+  "pageTypeReason": "Page contains input fields for personal information, category selection, and submission trigger.",
+  "fields": [
+    {
+      "elementId": "elem_1",
+      "semanticType": "applicant.fullName",
+      "confidence": 0.98,
+      "reason": "Input label and placeholder clearly state 'Full Name' and 'Enter official applicant name'.",
+      "isResolved": true
+    },
+    {
+      "elementId": "elem_2",
+      "semanticType": "applicant.category",
+      "confidence": 0.92,
+      "reason": "Select dropdown with options General, OBC, SC/ST for social category.",
+      "isResolved": true
+    },
+    {
+      "elementId": "elem_3",
+      "semanticType": "UNKNOWN_FIELD",
+      "confidence": 0.40,
+      "reason": "Generic submit button trigger, not a user profile data field.",
+      "isResolved": false
+    }
+  ],
+  "summary": "Scholarship portal personal details application form.",
+  "metadata": {
+    "analyzedAt": "2026-10-03T11:45:00.000Z",
+    "durationMs": 150.5,
+    "cached": false,
+    "modelUsed": "gemini-2.0-flash",
+    "fieldCount": 3,
+    "resolvedCount": 2
+  }
+}

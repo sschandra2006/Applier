@@ -49,6 +49,21 @@ class ExecutionPlanner:
             )
 
             plan_dict = execution_plan.model_dump()
+            if "schemaVersion" not in plan_dict:
+                plan_dict["schemaVersion"] = "2.0.0"
+
+            # Canonical Contract Validation
+            try:
+                import sys
+                shared_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+                if shared_dir not in sys.path:
+                    sys.path.insert(0, shared_dir)
+                from shared.validators.python_validator import validate_canonical
+                is_valid, validation_errors = validate_canonical("execution-plan", plan_dict)
+                if not is_valid:
+                    logger.warning(f"[ExecutionPlanner] Canonical validation warning: {validation_errors}")
+            except Exception as cv_err:
+                logger.warning(f"[ExecutionPlanner] Canonical validation skipped: {cv_err}")
 
             # Send the plan back to Node.js so it can execute it via Playwright
             self._send_plan_to_node(job_id, state_id, plan_dict)

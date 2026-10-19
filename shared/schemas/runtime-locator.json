@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/runtime-locator.json",
+  "title": "RuntimeLocator",
+  "description": "Canonical contract for runtime semantic locator resolution results in live browser contexts.",
+  "type": "object",
+  "$defs": {
+    "LocatorStrategy": {
+      "type": "string",
+      "enum": [
+        "ACCESSIBLE_ROLE_NAME",
+        "LABEL",
+        "SEMANTIC_RELATIONSHIP",
+        "PLACEHOLDER",
+        "NAME",
+        "STABLE_TEST_ID",
+        "STABLE_DOM_ATTRIBUTES",
+        "CSS",
+        "XPATH",
+        "LOCATOR_NOT_FOUND"
+      ]
+    }
+  },
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "resolutionId": {
+      "type": "string"
+    },
+    "semanticTarget": {
+      "type": "string",
+      "description": "Target canonical semantic path (e.g. applicant.fullName, contact.email)."
+    },
+    "found": {
+      "type": "boolean",
+      "description": "Whether a reliable live browser element was located."
+    },
+    "strategy": {
+      "$ref": "#/$defs/LocatorStrategy",
+      "description": "The strongest reliable strategy used to locate the element."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Confidence score of the resolved locator."
+    },
+    "evidence": {
+      "type": "string",
+      "description": "Trace evidence explaining which attribute, label, or relationship confirmed the match."
+    },
+    "selector": {
+      "type": ["string", "null"],
+      "description": "Playwright selector or locator query expression."
+    },
+    "framePath": {
+      "type": ["string", "null"],
+      "description": "Frame path identifier if located inside an iframe."
+    },
+    "metadata": {
+      "type": ["object", "null"],
+      "properties": {
+        "tagName": { "type": "string" },
+        "role": { "type": ["string", "null"] },
+        "inputType": { "type": ["string", "null"] },
+        "isEditable": { "type": "boolean" },
+        "boundingBox": { "type": ["object", "null"] }
+      }
+    },
+    "error": {
+      "type": ["string", "null"],
+      "description": "Error code if resolution failed (e.g. LOCATOR_NOT_FOUND)."
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "semanticTarget",
+    "found",
+    "strategy",
+    "confidence",
+    "evidence"
+  ],
+  "additionalProperties": true
+}

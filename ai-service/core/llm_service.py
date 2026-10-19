@@ -214,6 +214,18 @@ class LLMService:
                 confidence=0.85,
                 requiresClarification=True
             )
+        elif model_name == "SemanticPageModel":
+            from core.models import SemanticPageModel
+            import uuid
+            return SemanticPageModel(
+                modelId=f"sem_{uuid.uuid4()}",
+                observationId="obs_fallback",
+                url="about:blank",
+                pageType="UNKNOWN",
+                pageTypeConfidence=0.0,
+                pageTypeReason="Fallback instance due to generation failure",
+                fields=[]
+            )
         try:
             return schema_model.model_construct()
         except Exception:
@@ -328,10 +340,13 @@ class LLMService:
         Generates text embeddings using sentence-transformers or HF Inference API.
         """
         if SENTENCE_TRANSFORMERS_AVAILABLE:
-            if self.embedder is None:
-                self.embedder = SentenceTransformer(settings.EMBEDDING_MODEL)
-            embedding = self.embedder.encode(text).tolist()
-            return embedding
+            try:
+                if self.embedder is None:
+                    self.embedder = SentenceTransformer(settings.EMBEDDING_MODEL)
+                embedding = self.embedder.encode(text).tolist()
+                return embedding
+            except Exception as e:
+                logger.warning(f"SentenceTransformer failed or offline ({e}). Falling back to deterministic embedding.")
         elif self.client:
             try:
                 embedding = self.client.feature_extraction(text, model=settings.EMBEDDING_MODEL)

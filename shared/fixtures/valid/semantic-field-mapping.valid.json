@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "2.0.0",
+  "mappingId": "map_fixture_valid_001",
+  "pageUrl": "https://scholarships.gov.in/fresh-application",
+  "pageType": "APPLICATION_FORM",
+  "mappings": [
+    {
+      "websiteFieldId": "txt_applicant_name",
+      "applicantField": "applicant.fullName",
+      "candidateValue": "Rahul Kumar",
+      "source": "DOCUMENT",
+      "confidence": 0.99,
+      "status": "MATCHED",
+      "isFillable": true,
+      "evidence": "Aadhaar.pdf",
+      "documentId": "doc_aadhaar_001",
+      "signalsUsed": [
+        "label",
+        "name",
+        "placeholder",
+        "autocomplete",
+        "semantic_context",
+        "known_portal_knowledge"
+      ],
+      "matchReason": "Strong match on candidate name signals backed by verified Aadhaar evidence."
+    },
+    {
+      "websiteFieldId": "txt_contact_email",
+      "applicantField": "applicant.email",
+      "candidateValue": "rahul.kumar@example.com",
+      "source": "PROFILE",
+      "confidence": 0.98,
+      "status": "MATCHED",
+      "isFillable": true,
+      "evidence": "Imported from primary profile record.",
+      "signalsUsed": [
+        "label",
+        "name",
+        "autocomplete",
+        "field_type"
+      ],
+      "matchReason": "Email input type and autocomplete token align perfectly."
+    },
+    {
+      "websiteFieldId": "txt_guardian_name",
+      "applicantField": "family.fatherName",
+      "candidateValue": "Suresh Kumar",
+      "source": "DOCUMENT",
+      "confidence": 0.92,
+      "status": "MATCHED",
+      "isFillable": true,
+      "evidence": "Marksheet.pdf",
+      "documentId": "doc_marksheet_001",
+      "signalsUsed": [
+        "label",
+        "nearby_text",
+        "semantic_context"
+      ],
+      "matchReason": "Context indicates family guardian particulars."
+    },
+    {
+      "websiteFieldId": "txt_bank_account",
+      "applicantField": "financial.bankAccountNumber",
+      "candidateValue": null,
+      "source": "NONE",
+      "confidence": 0.88,
+      "status": "MISSING",
+      "isFillable": false,
+      "signalsUsed": [
+        "label",
+        "name"
+      ],
+      "matchReason": "Field identified as bank account number, but knowledge graph contains no value."
+    },
+    {
+      "websiteFieldId": "txt_dob",
+      "applicantField": "applicant.dateOfBirth",
+      "candidateValue": "14-08-2006",
+      "source": "DOCUMENT",
+      "confidence": 0.65,
+      "status": "CONFLICT",
+      "isFillable": false,
+      "evidence": "Aadhaar.pdf (14-08-2006) vs Marksheet.pdf (15-08-2006)",
+      "signalsUsed": [
+        "label",
+        "name",
+        "field_type"
+      ],
+      "matchReason": "Unresolved conflict exists in applicant knowledge graph between Aadhaar and Marksheet.",
+      "conflictDetails": {
+        "existingValue": "14-08-2006",
+        "conflictingValue": "15-08-2006",
+        "reason": "FIELD_CONFLICT"
+      }
+    },
+    {
+      "websiteFieldId": "sel_category_ambiguous",
+      "applicantField": "applicant.category",
+      "candidateValue": null,
+      "source": "NONE",
+      "confidence": 0.55,
+      "status": "AMBIGUOUS",
+      "isFillable": false,
+      "signalsUsed": [
+        "label"
+      ],
+      "matchReason": "Multiple candidate categories with competing scores.",
+      "alternativeMatches": [
+        {
+          "applicantField": "applicant.category",
+          "confidence": 0.55,
+          "reason": "Social category"
+        },
+        {
+          "applicantField": "education.stream",
+          "confidence": 0.50,
+          "reason": "Academic stream"
+        }
+      ]
+    },
+    {
+      "websiteFieldId": "captcha_input",
+      "applicantField": "security.captcha",
+      "candidateValue": null,
+      "source": "NONE",
+      "confidence": 0.99,
+      "status": "REQUIRES_USER",
+      "isFillable": false,
+      "signalsUsed": [
+        "label",
+        "name",
+        "page_context"
+      ],
+      "matchReason": "Security captcha field requires human interactive entry."
+    }
+  ],
+  "stats": {
+    "totalFields": 7,
+    "matched": 3,
+    "ambiguous": 1,
+    "missing": 1,
+    "conflict": 1,
+    "requiresUser": 1,
+    "fillableCount": 3
+  },
+  "timestamp": "2026-10-03T13:00:00.000Z"
+}

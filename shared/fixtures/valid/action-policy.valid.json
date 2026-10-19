@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "2.0.0",
+  "evaluationId": "pol_1a2b3c4d5e6f7a8b",
+  "actionType": "submit",
+  "riskCategory": "CRITICAL",
+  "decision": "ALLOWED",
+  "target": "#btnFinalSubmit",
+  "allowed": true,
+  "violationCode": null,
+  "reason": "All required fields resolved, form validation passed, no conflicts, explicit user confirmation token verified.",
+  "confidence": 1.0,
+  "fieldStateHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "confirmationToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.signature",
+  "timestamp": "2026-10-04T00:15:00.000Z"
+}

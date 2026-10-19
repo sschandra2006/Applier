@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, ShieldAlert, MessageSquare, Loader2, Send, CheckCircle2, Paperclip, AlertTriangle } from 'lucide-react';
+import { Play, Shield, ShieldAlert, MessageSquare, Loader2, Send, CheckCircle2, Paperclip, AlertTriangle } from 'lucide-react';
 import { 
   analyzeUrlApi, 
   sendInterviewMessageApi, 
   executeApplicationApi, 
   fetchAutomationStatusApi, 
   resumeAutomationApi,
-  uploadInlineDocumentApi
+  uploadInlineDocumentApi,
+  createAutomationEventSource
 } from './services/automation.api.js';
+import ApplicationReviewScreen from './components/ApplicationReviewScreen.jsx';
 
 export default function NewApplication() {
   const [url, setUrl] = useState('');
@@ -28,6 +30,7 @@ export default function NewApplication() {
   const [isTyping, setIsTyping] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const [pauseContext, setPauseContext] = useState(null); // { fieldName, pauseReason, captchaImageBase64 }
+  const [showReview, setShowReview] = useState(false);
   
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -40,59 +43,185 @@ export default function NewApplication() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // Polling for Live Execution Status (Only when RUNNING or PAUSED)
+  // Real-Time Automation Event Stream (SSE) with Durable MongoDB Reconciliation
   useEffect(() => {
     if (!jobId || status === 'COMPLETED' || status === 'FAILED' || status === 'Idle' || status === 'ANALYZING' || status === 'INTERVIEWING' || status === 'READY_TO_EXECUTE') return;
-    
-    const interval = setInterval(async () => {
+
+    let isMounted = true;
+    const seenEventIds = new Set();
+    let lastSeq = 0;
+
+    // 1. Initial Durable State Synchronization from MongoDB
+    const syncDurableState = async () => {
       try {
         const data = await fetchAutomationStatusApi(jobId);
-        if (data.success) {
-          const job = data.data;
-          setStatus(job.status);
-          if (job.progress) {
-             setProgress(job.progress);
-          }
-          if (job.status === 'FAILED') {
-             setErrorDetails(job.errorDetails || 'Automation execution failed.');
-          }
-          
-          if (job.status === 'PAUSED_OTP' || job.status === 'PAUSED_CAPTCHA') {
-             // Store pause context (captcha image, field name)
-             if (job.pauseContext) {
-               setPauseContext(job.pauseContext);
-             }
-             const lastLog = job.logs[job.logs.length - 1]?.message || 'Action required.';
-             const alreadyShown = messages.some(m => m.content.includes('paused') && m.sender === 'AI');
-             if (!alreadyShown) {
-               const pauseMsg = job.status === 'PAUSED_CAPTCHA'
-                 ? `⏸️ The form has a CAPTCHA. Please look at the image in the Execution Monitor panel on the right and type the code you see.`
-                 : `⏸️ The form requires an OTP. Please check your registered mobile/email and type the OTP code below.`;
-               setMessages(prev => [...prev, { sender: 'AI', content: pauseMsg }]);
-               // If CAPTCHA image available, also show it inline in the chat
-               if (job.status === 'PAUSED_CAPTCHA' && job.pauseContext?.captchaImageBase64) {
-                 setMessages(prev => [...prev, {
-                   sender: 'AI',
-                   content: '__CAPTCHA_IMAGE__',
-                   captchaImage: job.pauseContext.captchaImageBase64
-                 }]);
-               }
-             }
-          }
-          if (job.logs && job.logs.length > 0) {
-             const latestLogWithReceipt = [...job.logs].reverse().find(l => l.additionalData?.base64Receipt);
-             if (latestLogWithReceipt) {
-                setBrowserPreview(`data:image/png;base64,${latestLogWithReceipt.additionalData.base64Receipt}`);
-             }
+        if (!isMounted || !data.success) return;
+        const job = data.data;
+        setStatus(job.status);
+        if (job.progress) setProgress(job.progress);
+        if (job.status === 'FAILED') setErrorDetails(job.errorDetails || 'Automation execution failed.');
+        
+        if (job.status === 'PAUSED_OTP' || job.status === 'PAUSED_CAPTCHA') {
+          if (job.pauseContext) setPauseContext(job.pauseContext);
+          const alreadyShown = messages.some(m => m.content.includes('paused') && m.sender === 'AI');
+          if (!alreadyShown) {
+            const pauseMsg = job.status === 'PAUSED_CAPTCHA'
+              ? `⏸️ The form has a CAPTCHA. Please look at the image in the Execution Monitor panel on the right and type the code you see.`
+              : `⏸️ The form requires an OTP. Please check your registered mobile/email and type the OTP code below.`;
+            setMessages(prev => [...prev, { sender: 'AI', content: pauseMsg }]);
+            if (job.status === 'PAUSED_CAPTCHA' && job.pauseContext?.captchaImageBase64) {
+              setMessages(prev => [...prev, {
+                sender: 'AI',
+                content: '__CAPTCHA_IMAGE__',
+                captchaImage: job.pauseContext.captchaImageBase64
+              }]);
+            }
           }
         }
-      } catch (e) {
-        console.error('Polling error', e);
+        if (job.logs && job.logs.length > 0) {
+          const latestLogWithReceipt = [...job.logs].reverse().find(l => l.additionalData?.base64Receipt || l.additionalData?.receiptScreenshot);
+          if (latestLogWithReceipt) {
+            const receipt = latestLogWithReceipt.additionalData?.base64Receipt || latestLogWithReceipt.additionalData?.receiptScreenshot;
+            setBrowserPreview(receipt.startsWith('data:') ? receipt : `data:image/png;base64,${receipt}`);
+          }
+        }
+      } catch (err) {
+        console.warn('Initial durable state fetch error:', err);
       }
-    }, 2000);
-    
-    return () => clearInterval(interval);
-  }, [jobId, status, messages]);
+    };
+
+    syncDurableState();
+
+    // 2. Establish Real-Time SSE Stream
+    let eventSource;
+    try {
+      eventSource = createAutomationEventSource(jobId);
+
+      eventSource.onmessage = (e) => {
+        if (!isMounted) return;
+        try {
+          const evt = JSON.parse(e.data);
+          
+          // Duplicate & Ordering Guard
+          if (evt.eventId && seenEventIds.has(evt.eventId)) return;
+          if (evt.sequenceNumber && evt.sequenceNumber <= lastSeq) return;
+          if (evt.eventId) seenEventIds.add(evt.eventId);
+          if (evt.sequenceNumber) {
+            // If there is an unexpected sequence gap, trigger background durable sync
+            if (evt.sequenceNumber > lastSeq + 1) {
+              syncDurableState();
+            }
+            lastSeq = evt.sequenceNumber;
+          }
+
+          const { eventType, payload = {} } = evt;
+
+          // Dispatch Event Updates
+          switch (eventType) {
+            case 'JOB_STARTED':
+              setStatus('RUNNING');
+              if (payload.progress) setProgress(payload.progress);
+              break;
+
+            case 'PAGE_CHANGED':
+              if (payload.screenshot) {
+                setBrowserPreview(payload.screenshot.startsWith('data:') ? payload.screenshot : `data:image/png;base64,${payload.screenshot}`);
+              }
+              break;
+
+            case 'FIELD_DETECTED':
+            case 'FIELD_MAPPED':
+              if (payload.progress) setProgress(payload.progress);
+              break;
+
+            case 'FIELD_FILLED':
+            case 'FIELD_VERIFIED':
+            case 'DOCUMENT_UPLOADED':
+              if (payload.progress) setProgress(payload.progress);
+              if (payload.screenshot) {
+                setBrowserPreview(payload.screenshot.startsWith('data:') ? payload.screenshot : `data:image/png;base64,${payload.screenshot}`);
+              }
+              break;
+
+            case 'USER_INPUT_REQUIRED':
+            case 'CHECKPOINT_REQUIRED': {
+              const pauseReason = payload.pauseReason || 'USER_INPUT';
+              const nextStatus = pauseReason === 'CAPTCHA' ? 'PAUSED_CAPTCHA' : 'PAUSED_OTP';
+              setStatus(nextStatus);
+              setPauseContext(payload);
+
+              const alreadyNotified = messages.some(m => m.content?.includes('requires') || m.content?.includes('CAPTCHA') || m.content?.includes('OTP'));
+              if (!alreadyNotified) {
+                const pauseMsg = nextStatus === 'PAUSED_CAPTCHA'
+                  ? `⏸️ The form has a CAPTCHA. Please look at the image in the Execution Monitor panel on the right and type the code you see.`
+                  : `⏸️ The form requires an OTP. Please check your registered mobile/email and type the OTP code below.`;
+                setMessages(prev => [...prev, { sender: 'AI', content: pauseMsg }]);
+                if (nextStatus === 'PAUSED_CAPTCHA' && payload.captchaImageBase64) {
+                  setMessages(prev => [...prev, {
+                    sender: 'AI',
+                    content: '__CAPTCHA_IMAGE__',
+                    captchaImage: payload.captchaImageBase64
+                  }]);
+                }
+              }
+              break;
+            }
+
+            case 'SUBMISSION_STARTED':
+              if (payload.progress) setProgress(payload.progress);
+              break;
+
+            case 'SUBMISSION_VERIFIED':
+            case 'JOB_COMPLETED':
+              setStatus('COMPLETED');
+              if (payload.receiptScreenshot) {
+                const receipt = payload.receiptScreenshot;
+                setBrowserPreview(receipt.startsWith('data:') ? receipt : `data:image/png;base64,${receipt}`);
+              }
+              if (payload.referenceNumber) {
+                setMessages(prev => [...prev, {
+                  sender: 'AI',
+                  content: `🎉 Application successfully verified and submitted! Reference Number: ${payload.referenceNumber}`
+                }]);
+              }
+              break;
+
+            case 'JOB_FAILED':
+              setStatus('FAILED');
+              setErrorDetails(payload.errorDetails || payload.error || 'Automation execution failed.');
+              setMessages(prev => [...prev, {
+                sender: 'AI',
+                content: `❌ Execution failed: ${payload.errorDetails || payload.error || 'An unexpected error occurred.'}`
+              }]);
+              break;
+
+            default:
+              break;
+          }
+        } catch (err) {
+          console.error('Failed to parse SSE event payload:', err);
+        }
+      };
+
+      eventSource.onerror = (err) => {
+        // EventSource will automatically attempt reconnection.
+        // Reconcile with durable store in case of disconnect.
+        console.warn('SSE connection issue, reconciling with durable store...', err);
+        syncDurableState();
+      };
+    } catch (sseErr) {
+      console.error('Failed to initialize EventSource:', sseErr);
+      // Fallback durable sync
+      syncDurableState();
+    }
+
+    return () => {
+      isMounted = false;
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, [jobId, status]);
 
   // Handle URL Submission -> Start Analysis
   const startAnalysis = async () => {
@@ -114,6 +243,7 @@ export default function NewApplication() {
         setMessages(prev => [...prev, res.data.firstMessage]);
         if (res.data.firstMessage?.content?.includes("ready to submit")) {
           setStatus('READY_TO_EXECUTE');
+          setShowReview(true);
         } else {
           setStatus('INTERVIEWING');
         }
@@ -170,6 +300,7 @@ export default function NewApplication() {
           setMessages(prev => [...prev, res.data.reply]);
           if (res.data.state?.status === 'COMPLETED') {
             setStatus('READY_TO_EXECUTE');
+            setShowReview(true);
           }
         }
       } catch (err) {
@@ -218,6 +349,7 @@ export default function NewApplication() {
           
           if (state.status === 'COMPLETED') {
             setStatus('READY_TO_EXECUTE');
+            setShowReview(true);
           }
         }
       } catch (e) {
@@ -263,6 +395,7 @@ export default function NewApplication() {
               setMessages(prev => [...prev, { sender: 'AI', content: reply.content }]);
               if (state.status === 'COMPLETED') {
                 setStatus('READY_TO_EXECUTE');
+                setShowReview(true);
               }
             }
          } else if (status.startsWith('PAUSED')) {
@@ -282,34 +415,59 @@ export default function NewApplication() {
   };
 
   // Handle Final Execution
-  const executeApplication = async () => {
-    setMessages(prev => [...prev, { sender: 'AI', content: 'Initializing Browser Engine... Deploying automation.' }]);
+  const executeApplication = async (confirmationToken = null) => {
+    setMessages(prev => [...prev, { sender: 'AI', content: 'Initializing Browser Engine with Policy Validation... Deploying automation.' }]);
     setStatus('RUNNING');
     try {
-      const res = await executeApplicationApi(interviewStateId);
+      const res = await executeApplicationApi(interviewStateId, confirmationToken);
       if (res.success) {
         setJobId(res.data._id);
       }
     } catch (e) {
       console.error(e);
       setStatus('FAILED');
-      setErrorDetails('Execution failed to initialize.');
-      setMessages(prev => [...prev, { sender: 'AI', content: 'Execution failed to start.' }]);
+      const errorMsg = e.response?.data?.error || 'Execution failed to initialize.';
+      setErrorDetails(errorMsg);
+      setMessages(prev => [...prev, { sender: 'AI', content: `Execution blocked by policy: ${errorMsg}` }]);
     }
   };
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-6 animate-in fade-in duration-500">
       
-      {/* Left: AI Conversational Flow */}
-      <div className="flex-1 flex flex-col bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-border bg-muted/30">
-          <h2 className="font-semibold flex items-center gap-2">
-            <MessageSquare size={18} />
-            AI Assistant
-          </h2>
-          <p className="text-xs text-muted-foreground">Chat with the AI to provide missing info.</p>
+      {showReview && interviewStateId ? (
+        <div className="flex-1 bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
+          <ApplicationReviewScreen
+            interviewStateId={interviewStateId}
+            applicationId={jobId || 'app_current'}
+            onProceedToExecution={(token) => {
+              setShowReview(false);
+              executeApplication(token);
+            }}
+            onBackToChat={() => setShowReview(false)}
+          />
         </div>
+      ) : (
+        /* Left: AI Conversational Flow */
+        <div className="flex-1 flex flex-col bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-border bg-muted/30 flex items-center justify-between">
+            <div>
+              <h2 className="font-semibold flex items-center gap-2">
+                <MessageSquare size={18} />
+                AI Assistant
+              </h2>
+              <p className="text-xs text-muted-foreground">Chat with the AI to provide missing info.</p>
+            </div>
+            {interviewStateId && (
+              <button
+                onClick={() => setShowReview(true)}
+                className="text-xs px-2.5 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary font-semibold flex items-center gap-1.5 transition-colors border border-primary/20"
+              >
+                <Shield size={13} />
+                Review Application
+              </button>
+            )}
+          </div>
         
         {/* Chat History */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/5">
@@ -395,9 +553,12 @@ export default function NewApplication() {
         <div className="p-4 border-t border-border bg-background">
           <div className="flex items-center gap-2">
             {status === 'READY_TO_EXECUTE' ? (
-               <button onClick={executeApplication} className="w-full h-10 px-4 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm">
-                 <Play size={16} />
-                 Start Application Execution
+               <button
+                 onClick={() => setShowReview(true)}
+                 className="w-full h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+               >
+                 <Shield size={16} />
+                 Review & Confirm Application
                </button>
             ) : (
               <>
@@ -444,6 +605,7 @@ export default function NewApplication() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Right: Live Browser Preview / Progress */}
       <div className="w-full lg:w-1/2 flex flex-col bg-card border border-border rounded-xl shadow-sm overflow-hidden">

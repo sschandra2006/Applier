@@ -1,12 +1,19 @@
 {
   "name": "applier-root",
-  "version": "1.0.0",
+  "version": "3.0.0",
+  "description": "Applier 3.0 — Resume-First Chrome Extension & Autonomous Application System",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "npx -y concurrently -c \"cyan.bold,green.bold,magenta.bold\" -n \"FRONTEND,BACKEND,AI-SVC\" \"npm run start:frontend\" \"npm run start:backend\" \"npm run start:ai\"",
+    "start": "npx -y concurrently -c \"cyan.bold,magenta.bold\" -n \"BACKEND,AI-SVC\" \"npm run start:backend\" \"npm run start:ai\"",
     "start:backend": "cd backend && node server.js",
-    "start:frontend": "cd frontend && npm run dev",
-    "start:ai": "cd ai-service && venv\\Scripts\\python main.py"
+    "start:ai": "cd ai-service && venv\\Scripts\\python main.py",
+    "build:extension": "cd extension && npm run build",
+    "test": "npm run test:backend && npm run test:ai",
+    "test:backend": "cd backend && npm test -- tests/resume-ingestion.test.js tests/missing-info-engine.test.js tests/resume-generation.test.js tests/chrome-extension.test.js tests/form-autofill-engine.test.js tests/workflow-orchestration.test.js tests/security-reliability-audit.test.js tests/factual-accuracy-audit.test.js",
+    "test:ai": "cd ai-service && venv\\Scripts\\pytest tests/",
+    "test:e2e": "node scratch/test_complete_workflow_browser.js",
+    "benchmark": "node scratch/run_performance_benchmark.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

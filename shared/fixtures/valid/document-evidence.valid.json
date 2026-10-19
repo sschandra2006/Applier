@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "2.0.0",
+  "evidenceId": "evi_test_aadhaar_dob_01",
+  "documentId": "doc_test_aadhaar_001",
+  "fieldKey": "identity.dateOfBirth",
+  "page": 1,
+  "region": {
+    "x": 120,
+    "y": 240,
+    "width": 250,
+    "height": 45,
+    "unit": "pixel"
+  },
+  "extractionMethod": "OCR",
+  "rawValue": "DOB: 14/08/2006",
+  "normalizedValue": "14-08-2006",
+  "extractedValue": "14-08-2006",
+  "confidence": 0.98,
+  "timestamp": "2026-10-03T12:00:00.000Z",
+  "quality": {
+    "isBlurry": false,
+    "isCropped": false,
+    "isUnreadable": false,
+    "missingPages": false,
+    "qualityScore": 0.98
+  },
+  "verifier": "VISION_LLM",
+  "verifiedAt": "2026-10-03T12:00:00.000Z"
+}

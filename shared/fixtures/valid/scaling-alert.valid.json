@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "2.0.0",
+  "alertId": "alt_backlog_threshold_001",
+  "alertType": "QUEUE_BACKLOG",
+  "severity": "WARNING",
+  "message": "Automation queue backlog exceeded target threshold (25 jobs pending).",
+  "triggerValue": 25,
+  "thresholdValue": 20,
+  "timestamp": "2026-10-07T14:31:00.000Z",
+  "workerId": "worker-pool-node-3",
+  "metadata": {
+    "activeWorkers": 3,
+    "recommendedScaleUp": 5
+  },
+  "resolved": false
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/applicant-field.json",
+  "title": "ApplicantField",
+  "description": "Atomic user-supplied or extracted answer field with provenance and confidence.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "fieldId": {
+      "type": "string",
+      "description": "Target field key (e.g. fullName, annualIncome)."
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable label displayed on the target portal."
+    },
+    "value": {
+      "description": "Collected value (string, number, boolean, array, or object)."
+    },
+    "source": {
+      "type": "string",
+      "enum": ["USER_DIRECT", "PROFILE_INFERRED", "DOCUMENT_EXTRACTED", "AI_INFERRED"],
+      "default": "USER_DIRECT"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "default": 1.0
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "updatedAt": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "fieldId", "value"],
+  "additionalProperties": true
+}

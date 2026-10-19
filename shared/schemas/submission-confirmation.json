@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/submission-confirmation.json",
+  "title": "SubmissionConfirmation",
+  "description": "Cryptographic confirmation token tied to application, workflow version, field state, timestamp, and user.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "confirmationId": {
+      "type": "string"
+    },
+    "applicationId": {
+      "type": "string"
+    },
+    "workflowVersion": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "fieldStateHash": {
+      "type": "string",
+      "description": "Deterministic SHA-256 hash of all canonical field values at confirmation time."
+    },
+    "token": {
+      "type": "string"
+    },
+    "signature": {
+      "type": "string"
+    },
+    "isValid": {
+      "type": "boolean"
+    },
+    "invalidatedReason": {
+      "type": ["string", "null"]
+    },
+    "expiresAt": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "confirmationId",
+    "applicationId",
+    "workflowVersion",
+    "userId",
+    "fieldStateHash",
+    "token",
+    "isValid"
+  ],
+  "additionalProperties": true
+}

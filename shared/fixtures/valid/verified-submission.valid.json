@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "2.0.0",
+  "submissionId": "sub_49d7990c-99d1-4475-b6d8-94b1552a9224",
+  "applicationId": "app_5019283",
+  "jobId": "job_9981273",
+  "submissionStatus": "SUBMITTED",
+  "submittedAt": "2026-10-06T15:40:00.000Z",
+  "referenceNumber": "APP-2026-98124",
+  "confirmationUrl": "https://portal.university.edu/admissions/confirmation",
+  "receipt": {
+    "available": true,
+    "receiptUrl": "https://portal.university.edu/admissions/receipt/APP-2026-98124.pdf",
+    "receiptFilename": "APP-2026-98124_acknowledgement.pdf",
+    "receiptType": "PDF",
+    "receiptSummary": "Official Admission Acknowledgement Receipt",
+    "capturedAt": "2026-10-06T15:40:02.000Z"
+  },
+  "receiptScreenshot": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+  "finalPageEvidence": {
+    "url": "https://portal.university.edu/admissions/confirmation",
+    "pageTitle": "Application Confirmation - Admissions 2026",
+    "confirmationHeading": "Application Submitted Successfully",
+    "confirmationText": "Thank you for submitting your application. Your application reference number is APP-2026-98124.",
+    "signalsDetected": [
+      "SUCCESS_PAGE",
+      "CONFIRMATION_TEXT",
+      "APPLICATION_NUMBER",
+      "RECEIPT_DOWNLOAD",
+      "URL_TRANSITION",
+      "DOM_STATE"
+    ],
+    "errorSignals": [],
+    "urlTransitioned": true,
+    "domStateHash": "conf_hash_98124"
+  },
+  "confidence": 0.99,
+  "requiresHumanReview": false
+}

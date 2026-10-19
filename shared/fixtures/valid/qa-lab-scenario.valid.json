@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "2.0.0",
+  "scenarioId": "qa-01-simple-form",
+  "scenarioNumber": 1,
+  "name": "Simple HTML Form",
+  "description": "Standard native HTML form with common input types and validation",
+  "category": "FORM_PARSING",
+  "failureClass": "NONE",
+  "breakMechanism": "Baseline benchmark form",
+  "resilienceStrategy": "Direct semantic field extraction and standard filling",
+  "testLevels": [
+    "Unit",
+    "Integration",
+    "Browser",
+    "End-to-End"
+  ],
+  "htmlFixture": "<!DOCTYPE html><html><body><form id=\"test\"><input type=\"text\" name=\"fullName\" /><button type=\"submit\">Submit</button></form></body></html>"
+}

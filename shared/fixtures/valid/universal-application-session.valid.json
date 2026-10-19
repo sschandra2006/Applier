@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "2.0.0",
+  "sessionId": "uas_session_unknown_portal_01",
+  "userId": "user_applicant_101",
+  "targetUrl": "https://unknown-careers.example.com/apply",
+  "domain": "unknown-careers.example.com",
+  "isKnownWebsite": false,
+  "fingerprintId": null,
+  "phase": "SUBMISSION_VERIFIED",
+  "status": "COMPLETED",
+  "temporaryWorkflow": {
+    "workflowId": "wf_temp_unknown_01",
+    "pages": [
+      {
+        "pageType": "APPLICATION_FORM",
+        "url": "https://unknown-careers.example.com/apply"
+      }
+    ]
+  },
+  "mappedFields": [
+    {
+      "fieldId": "fld_fullname",
+      "semanticTarget": "applicant.fullName",
+      "value": "Alex Johnson",
+      "confidence": 0.96,
+      "source": "APPLICANT_GRAPH",
+      "verified": true
+    },
+    {
+      "fieldId": "fld_email",
+      "semanticTarget": "applicant.email",
+      "value": "alex.johnson@example.com",
+      "confidence": 0.98,
+      "source": "DOCUMENT_EVIDENCE",
+      "verified": true
+    }
+  ],
+  "missingFields": [],
+  "confidence": 0.97,
+  "requiresUserInput": false,
+  "confirmationToken": "tok_confirmed_review_8899",
+  "submissionResult": {
+    "submissionStatus": "SUBMITTED",
+    "referenceNumber": "APP-UNKNOWN-992211"
+  },
+  "learnedFingerprint": {
+    "fingerprintId": "wfp_unknown_careers_example_com_v1",
+    "status": "ACTIVE"
+  },
+  "error": null
+}

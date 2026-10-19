@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "2.0.0",
+  "eventId": "evt_001_job_created",
+  "sequenceNumber": 1,
+  "eventType": "JOB_CREATED",
+  "jobId": "job_sample_2026_01",
+  "applicationId": "app_sample_2026_01",
+  "timestamp": "2026-10-06T21:40:00.000Z",
+  "payload": {
+    "status": "QUEUED",
+    "targetUrl": "https://admissions.example.edu/apply",
+    "description": "Admissions application automation initialized."
+  }
+}

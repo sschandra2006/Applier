@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "2.0.0",
+  "jobId": "job_778899",
+  "userId": "user_445566",
+  "interviewStateId": "state_112233",
+  "workflowId": "wf_test_12345",
+  "status": "RUNNING",
+  "progress": {
+    "currentStep": 2,
+    "totalSteps": 4
+  },
+  "currentStepIndex": 2,
+  "executionPlan": [
+    { "type": "navigate", "url": "https://scholarships.gov.in" },
+    { "type": "fill", "selector": "#txt_name", "value": "Jane" }
+  ],
+  "pauseContext": {
+    "schemaVersion": "2.0.0",
+    "fieldName": "otp",
+    "pauseReason": "OTP",
+    "stepIndex": 2,
+    "resumeFromIndex": 3
+  },
+  "logs": [
+    { "level": "INFO", "message": "Step 1/4 completed", "additionalData": {} }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/document.json",
+  "title": "Document",
+  "description": "Canonical schema for an ingested or vault document in Applier 2.0.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "documentId": {
+      "type": "string",
+      "description": "Unique identifier for the document."
+    },
+    "userId": {
+      "type": "string",
+      "description": "Owner user account ID."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "PASSPORT",
+        "AADHAAR",
+        "PAN",
+        "DRIVING_LICENCE",
+        "BIRTH_CERTIFICATE",
+        "MARKSHEET",
+        "INCOME_CERTIFICATE",
+        "FEE_RECEIPT",
+        "PHOTO",
+        "SIGNATURE",
+        "OTHER"
+      ]
+    },
+    "fileName": {
+      "type": "string"
+    },
+    "fileUrl": {
+      "type": "string"
+    },
+    "mimeType": {
+      "type": "string"
+    },
+    "sizeBytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "validationStatus": {
+      "type": "string",
+      "enum": ["PENDING", "VALID", "INVALID", "EXPIRED", "UNREADABLE"],
+      "default": "PENDING"
+    },
+    "extractedFields": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "uploadedAt": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "documentId", "userId", "type", "fileName", "fileUrl"],
+  "additionalProperties": true
+}

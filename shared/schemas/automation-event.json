@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/automation-event.json",
+  "title": "AutomationEvent",
+  "description": "Canonical real-time notification envelope for event-driven automation execution updates.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "sequenceNumber",
+    "eventType",
+    "jobId",
+    "timestamp",
+    "payload"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "eventId": {
+      "type": "string"
+    },
+    "sequenceNumber": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "eventType": {
+      "type": "string",
+      "enum": [
+        "JOB_CREATED",
+        "JOB_STARTED",
+        "PAGE_CHANGED",
+        "FIELD_DETECTED",
+        "FIELD_MAPPED",
+        "FIELD_FILLED",
+        "FIELD_VERIFIED",
+        "DOCUMENT_UPLOADED",
+        "CHECKPOINT_REQUIRED",
+        "USER_INPUT_REQUIRED",
+        "RECOVERY_STARTED",
+        "RECOVERY_COMPLETED",
+        "SUBMISSION_STARTED",
+        "SUBMISSION_VERIFIED",
+        "JOB_COMPLETED",
+        "JOB_FAILED"
+      ]
+    },
+    "jobId": {
+      "type": "string"
+    },
+    "applicationId": {
+      "type": ["string", "null"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

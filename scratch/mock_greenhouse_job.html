@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Senior Platform Engineer at TechCorp - Greenhouse</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px; color: #333; max-width: 800px; }
+    h1.app-title { font-size: 28px; margin-bottom: 5px; color: #111; }
+    .company-name { font-size: 16px; color: #666; margin-bottom: 20px; }
+    .location { font-size: 14px; color: #888; margin-bottom: 30px; }
+    #content { line-height: 1.6; margin-bottom: 40px; }
+    form { background: #fdfdfd; border: 1px solid #ddd; padding: 25px; border-radius: 8px; }
+    .field { margin-bottom: 18px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+    input[type="text"], input[type="email"], input[type="tel"] { width: 100%; max-width: 450px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; }
+    input[type="file"] { padding: 6px 0; }
+    .submit-btn { background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <div class="company-name">TechCorp</div>
+    <h1 class="app-title">Senior Platform Engineer</h1>
+    <div class="location">San Francisco, CA</div>
+
+    <div id="content">
+      <h2>About the Role</h2>
+      <p>TechCorp is seeking an exceptional Senior Platform Engineer to scale our distributed streaming infrastructure. You will architect high-throughput event pipelines, optimize low-latency databases, and maintain our global Kubernetes clusters.</p>
+      
+      <h3>Requirements</h3>
+      <ul>
+        <li>Deep experience with Go (Golang) and concurrent system design.</li>
+        <li>Strong track record building event-driven architectures with Apache Kafka.</li>
+        <li>Hands-on experience deploying and operating Kubernetes and Docker containers.</li>
+        <li>Database performance tuning with PostgreSQL.</li>
+        <li>B.S. in Computer Science or equivalent verified practical experience.</li>
+      </ul>
+    </div>
+
+    <form id="application_form" action="/apply" method="POST" enctype="multipart/form-data">
+      <h2>Submit Your Application</h2>
+
+      <div class="field">
+        <label for="first_name">First Name *</label>
+        <input type="text" id="first_name" name="first_name" required>
+      </div>
+
+      <div class="field">
+        <label for="last_name">Last Name *</label>
+        <input type="text" id="last_name" name="last_name" required>
+      </div>
+
+      <div class="field">
+        <label for="email">Email *</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone *</label>
+        <input type="tel" id="phone" name="phone" required>
+      </div>
+
+      <div class="field">
+        <label for="resume">Resume / CV *</label>
+        <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+      </div>
+
+      <div class="field">
+        <label for="linkedin">LinkedIn Profile</label>
+        <input type="text" id="linkedin" name="linkedin">
+      </div>
+
+      <div class="field">
+        <label for="work_authorization">Will you now or in the future require sponsorship for employment visa status? *</label>
+        <input type="text" id="work_authorization" name="work_authorization" placeholder="Yes or No">
+      </div>
+
+      <div class="field">
+        <button type="submit" class="submit-btn" id="submit_app">Submit Application</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

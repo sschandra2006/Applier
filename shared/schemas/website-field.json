@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/website-field.json",
+  "title": "WebsiteField",
+  "description": "Form input discovered and extracted from target portal DOM during crawling.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "fieldId": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "email",
+        "tel",
+        "date",
+        "number",
+        "select",
+        "radio",
+        "checkbox",
+        "file",
+        "textarea",
+        "password",
+        "pause",
+        "hidden"
+      ]
+    },
+    "label": {
+      "type": "string"
+    },
+    "selector": {
+      "type": "string"
+    },
+    "required": {
+      "type": "boolean",
+      "default": false
+    },
+    "placeholder": {
+      "type": "string"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "value": { "type": "string" },
+          "label": { "type": "string" }
+        },
+        "required": ["value"]
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "maxSizeBytes": { "type": "integer" },
+        "acceptedFormats": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "minDimensions": {
+          "type": "object",
+          "properties": {
+            "width": { "type": "integer" },
+            "height": { "type": "integer" }
+          }
+        },
+        "pattern": { "type": "string" }
+      }
+    },
+    "pageUrl": {
+      "type": "string"
+    },
+    "pageTitle": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "fieldId", "name", "selector"],
+  "additionalProperties": true
+}

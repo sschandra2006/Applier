@@ -17,6 +17,10 @@ import documentsRoutes from './src/documents/documents.routes.js';
 import trackingRoutes from './src/tracking/tracking.routes.js';
 import automationRoutes from './src/automation/automation.routes.js';
 import workflowRoutes from './src/workflow/workflow.routes.js';
+import reviewRoutes from './src/review/application-review.routes.js';
+import profileRoutes from './src/users/profile.routes.js';
+import vaultRoutes from './src/vault/vault.routes.js';
+import missingInfoRoutes from './src/workflow/missing-info.routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { logger } from './src/config/logger.js';
@@ -46,7 +50,17 @@ app.use(pinoHttp({ logger, autoLogging: false }));
 
 // CORS must be before rate limit and helmet so that rejected requests still have CORS headers
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173'],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (
+      origin.startsWith('chrome-extension://') ||
+      origin.startsWith('http://localhost') ||
+      origin.startsWith('http://127.0.0.1')
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 
@@ -74,6 +88,10 @@ app.use('/api/v1/documents', documentsRoutes);
 app.use('/api/v1/tracking', trackingRoutes);
 app.use('/api/v1/automation', automationRoutes);
 app.use('/api/v1/workflow', workflowRoutes);
+app.use('/api/v1/review', reviewRoutes);
+app.use('/api/v1/profile', profileRoutes);
+app.use('/api/v1/vault', vaultRoutes);
+app.use('/api/v1/missing-info', missingInfoRoutes);
 
 // Basic Route
 app.get('/api/v1/health', (req, res) => {

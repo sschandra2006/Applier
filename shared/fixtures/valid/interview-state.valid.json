@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "2.0.0",
+  "stateId": "state_112233",
+  "userId": "user_445566",
+  "workflowId": "wf_test_12345",
+  "status": "IN_PROGRESS",
+  "answers": {
+    "fullName": "Jane Doe",
+    "category": "GEN"
+  },
+  "pendingFields": ["annualIncome", "identityProof"],
+  "completedFields": ["fullName", "category"],
+  "currentField": "annualIncome",
+  "currentStep": 2,
+  "confidenceScores": {
+    "fullName": 0.98,
+    "category": 1.0
+  }
+}

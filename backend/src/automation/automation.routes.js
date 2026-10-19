@@ -1,6 +1,13 @@
 import { Router } from 'express';
 import { requireJwtAuth } from '../auth/jwt.middleware.js';
-import { executeAutomationController, resumeAutomationController, statusWebhookController, getStatusController, webhookReceivePlanController } from './automation.controller.js';
+import {
+  executeAutomationController,
+  resumeAutomationController,
+  statusWebhookController,
+  getStatusController,
+  webhookReceivePlanController,
+  streamJobEventsController
+} from './automation.controller.js';
 
 const router = Router();
 
@@ -9,6 +16,8 @@ router.post('/webhook/plan', webhookReceivePlanController); // Python execution 
 
 router.use(requireJwtAuth);
 router.get('/status/:jobId', getStatusController);
+router.get('/events/:jobId', streamJobEventsController);
+router.get('/:jobId/events', streamJobEventsController);
 router.post('/execute', executeAutomationController);
 router.post('/resume', resumeAutomationController);
 

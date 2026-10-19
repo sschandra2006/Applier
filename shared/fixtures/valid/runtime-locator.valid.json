@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "2.0.0",
+  "resolutionId": "res_fixture_valid_001",
+  "semanticTarget": "applicant.fullName",
+  "found": true,
+  "strategy": "ACCESSIBLE_ROLE_NAME",
+  "confidence": 0.99,
+  "evidence": "Matched accessible role 'textbox' with accessible name 'Full Name' via ARIA label.",
+  "selector": "role=textbox[name=\"Full Name\"i]",
+  "framePath": null,
+  "metadata": {
+    "tagName": "INPUT",
+    "role": "textbox",
+    "inputType": "text",
+    "isEditable": true,
+    "boundingBox": {
+      "x": 100,
+      "y": 150,
+      "width": 300,
+      "height": 40
+    }
+  },
+  "error": null,
+  "timestamp": "2026-10-03T18:00:00.000Z"
+}

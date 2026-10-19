@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import { config } from '../config/env.js';
 import { internalApi } from '../config/axios.js';
 import { scanUrl } from '../automation/automation.service.js';
+import { validateWorkflow, adaptCanonicalWorkflowToMongoose } from '../../../shared/src/index.js';
 
 const PYTHON_API_URL = config.pythonApiUrl;
 
@@ -59,16 +60,21 @@ export const analyzeUrl = async (req, res, next) => {
       }
       
       const schema = aiData.data?.schema || (aiData.data?.pages ? aiData.data : {});
+      if (!schema.schemaVersion) schema.schemaVersion = "2.0.0";
+      if (!schema.targetUrl) schema.targetUrl = targetUrl;
 
-      // 3. Save Workflow to MongoDB
-      workflow = await Workflow.create({
-        userId,
-        name: schema.name || 'Generated Workflow',
-        url: targetUrl,
-        urlHash: urlHash,
-        landingScreenshot: scannedData?.landingScreenshot || scannedData?.pages?.[0]?.screenshot || null,
-        schemaDefinition: schema
-      });
+      // Canonical Boundary Validation
+      const validation = validateWorkflow(schema);
+      if (!validation.valid) {
+        console.warn('[Workflow] Canonical validation warning for AI schema:', validation.errors);
+      }
+
+      // 3. Save Workflow to MongoDB using Adapter
+      const mongooseWorkflowData = adaptCanonicalWorkflowToMongoose(schema, userId);
+      mongooseWorkflowData.urlHash = urlHash;
+      mongooseWorkflowData.landingScreenshot = scannedData?.landingScreenshot || scannedData?.pages?.[0]?.screenshot || null;
+
+      workflow = await Workflow.create(mongooseWorkflowData);
     }
 
     // 4. Start Interview Process — reuse existing IN_PROGRESS state if available

@@ -1,0 +1,6 @@
+{
+  "schemaVersion": "2.0.0",
+  "workflowId": "wf_bad",
+  "name": "",
+  "targetUrl": "not_a_valid_url"
+}

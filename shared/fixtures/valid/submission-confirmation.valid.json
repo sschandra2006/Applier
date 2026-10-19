@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "2.0.0",
+  "confirmationId": "conf_7a8b9c0d1e2f3a4b",
+  "applicationId": "app_998877",
+  "workflowVersion": "2.0.0",
+  "userId": "user_12345",
+  "fieldStateHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBsaWNhdGlvbklkIjoiYXBwXzk5ODg3NyJ9.signature",
+  "signature": "hmac_sha256_mock_sig",
+  "isValid": true,
+  "invalidatedReason": null,
+  "expiresAt": "2026-10-04T00:30:00.000Z",
+  "timestamp": "2026-10-04T00:15:00.000Z"
+}

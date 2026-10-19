@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "2.0.0",
+  "verificationId": "ver_01h8a9b2c3d4e5f6a7b8c9d0",
+  "stepIndex": 1,
+  "actionType": "fill",
+  "status": "PASSED",
+  "target": "applicant.fullName",
+  "expected": "Rahul Kumar",
+  "actual": "Rahul Kumar",
+  "evidence": "Value read from input field '#fullName' matches expected value 'Rahul Kumar'. No validation error markers found.",
+  "error": null,
+  "recoveryAttempted": false,
+  "recoveryOutcome": null,
+  "timestamp": "2026-10-03T23:30:00.000Z"
+}

@@ -1,0 +1,286 @@
+{
+  "description": "Applier 2.0 Phase 8: Semantic Field Mapping test scenario fixtures",
+  "knowledgeGraph": {
+    "schemaVersion": "2.0.0",
+    "applicantId": "app_fixture_kg_001",
+    "userId": "usr_fixture_001",
+    "identity": {
+      "fullName": {
+        "value": "Rahul Kumar",
+        "source": "DOCUMENT",
+        "confidence": 0.99,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Aadhaar.pdf"
+      },
+      "firstName": {
+        "value": "Rahul",
+        "source": "PROFILE",
+        "confidence": 0.95,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z"
+      },
+      "lastName": {
+        "value": "Kumar",
+        "source": "PROFILE",
+        "confidence": 0.95,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z"
+      },
+      "dateOfBirth": {
+        "value": "14-08-2006",
+        "source": "DOCUMENT",
+        "confidence": 0.70,
+        "verificationStatus": "CONFLICT",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Aadhaar.pdf"
+      },
+      "gender": {
+        "value": "MALE",
+        "source": "DOCUMENT",
+        "confidence": 0.98,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Aadhaar.pdf"
+      },
+      "aadhaarNumber": {
+        "value": "1234-5678-9012",
+        "source": "DOCUMENT",
+        "confidence": 0.99,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Aadhaar.pdf"
+      }
+    },
+    "contact": {
+      "email": {
+        "value": "rahul.kumar@example.com",
+        "source": "PROFILE",
+        "confidence": 1.0,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z"
+      },
+      "phone": {
+        "value": "9876543210",
+        "source": "PROFILE",
+        "confidence": 0.95,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z"
+      },
+      "alternatePhone": {
+        "value": "9123456780",
+        "source": "PROFILE",
+        "confidence": 0.90,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z"
+      }
+    },
+    "address": {
+      "street": {
+        "value": "42 MG Road, Indiranagar",
+        "source": "DOCUMENT",
+        "confidence": 0.92,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Aadhaar.pdf"
+      },
+      "city": {
+        "value": "Bengaluru",
+        "source": "DOCUMENT",
+        "confidence": 0.95,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Aadhaar.pdf"
+      },
+      "state": {
+        "value": "Karnataka",
+        "source": "DOCUMENT",
+        "confidence": 0.95,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Aadhaar.pdf"
+      },
+      "pincode": {
+        "value": "560038",
+        "source": "DOCUMENT",
+        "confidence": 0.98,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Aadhaar.pdf"
+      }
+    },
+    "family": {
+      "fatherName": {
+        "value": "Suresh Kumar",
+        "source": "DOCUMENT",
+        "confidence": 0.96,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Marksheet.pdf"
+      },
+      "motherName": {
+        "value": "Sunita Kumar",
+        "source": "PROFILE",
+        "confidence": 0.90,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z"
+      }
+    },
+    "education": {
+      "college": {
+        "value": "National Institute of Technology",
+        "source": "DOCUMENT",
+        "confidence": 0.94,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Degree.pdf"
+      },
+      "degree": {
+        "value": "B.Tech Computer Science",
+        "source": "DOCUMENT",
+        "confidence": 0.94,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Degree.pdf"
+      },
+      "cgpa": {
+        "value": "8.85",
+        "source": "DOCUMENT",
+        "confidence": 0.95,
+        "verificationStatus": "VERIFIED",
+        "updatedAt": "2026-10-03T12:00:00.000Z",
+        "evidence": "Degree.pdf"
+      }
+    },
+    "financial": {},
+    "conflicts": [
+      {
+        "conflictId": "conf_dob_001",
+        "path": "identity.dateOfBirth",
+        "existingValue": {
+          "value": "14-08-2006",
+          "source": "DOCUMENT",
+          "evidence": "Aadhaar.pdf",
+          "confidence": 0.98
+        },
+        "conflictingValue": {
+          "value": "15-08-2006",
+          "source": "DOCUMENT",
+          "evidence": "Marksheet.pdf",
+          "confidence": 0.95
+        },
+        "status": "UNRESOLVED",
+        "reason": "FIELD_CONFLICT",
+        "detectedAt": "2026-10-03T12:00:00.000Z"
+      }
+    ]
+  },
+  "scenarios": {
+    "exactMatch": {
+      "websiteField": {
+        "fieldId": "f_exact_name",
+        "name": "fullName",
+        "label": "Full Name",
+        "type": "text",
+        "role": "textbox",
+        "placeholder": "Enter your full name",
+        "autocomplete": "name",
+        "selector": "#fullName"
+      },
+      "expectedStatus": "MATCHED",
+      "expectedField": "applicant.fullName",
+      "expectedValue": "Rahul Kumar",
+      "expectedIsFillable": true
+    },
+    "synonym": {
+      "websiteField": {
+        "fieldId": "f_synonym_cand_name",
+        "name": "cand_name",
+        "label": "Candidate Legal Name",
+        "type": "text",
+        "role": "textbox",
+        "placeholder": "Official legal name",
+        "autocomplete": "name",
+        "selector": "input[name='cand_name']"
+      },
+      "expectedStatus": "MATCHED",
+      "expectedField": "applicant.fullName",
+      "expectedValue": "Rahul Kumar",
+      "expectedIsFillable": true
+    },
+    "differentWording": {
+      "websiteField": {
+        "fieldId": "f_diff_wording_guardian",
+        "name": "parent_name",
+        "label": "Parent's / Guardian's Full Name",
+        "type": "text",
+        "role": "textbox",
+        "placeholder": "Father or Guardian name as per record",
+        "nearbyText": "Mention father's official name",
+        "semanticContext": "Family & Guardian Background",
+        "selector": "#parent_name"
+      },
+      "expectedStatus": "MATCHED",
+      "expectedField": "family.fatherName",
+      "expectedValue": "Suresh Kumar",
+      "expectedIsFillable": true
+    },
+    "missingData": {
+      "websiteField": {
+        "fieldId": "f_missing_bank_acc",
+        "name": "acc_number",
+        "label": "Bank Account Number",
+        "type": "text",
+        "role": "textbox",
+        "placeholder": "Enter bank account number for fee refund",
+        "autocomplete": "off",
+        "selector": "#acc_number"
+      },
+      "expectedStatus": "MISSING",
+      "expectedField": "financial.bankAccountNumber",
+      "expectedValue": null,
+      "expectedIsFillable": false
+    },
+    "conflictingData": {
+      "websiteField": {
+        "fieldId": "f_conflict_dob",
+        "name": "dob",
+        "label": "Date of Birth",
+        "type": "date",
+        "role": "textbox",
+        "placeholder": "DD/MM/YYYY",
+        "autocomplete": "bday",
+        "selector": "#dob"
+      },
+      "expectedStatus": "CONFLICT",
+      "expectedField": "applicant.dateOfBirth",
+      "expectedIsFillable": false
+    },
+    "wrongSemanticType": {
+      "websiteField": {
+        "fieldId": "f_wrong_type_email_file",
+        "name": "user_email_doc",
+        "label": "Email Address",
+        "type": "file",
+        "role": "button",
+        "placeholder": "",
+        "selector": "#user_email_doc"
+      },
+      "expectedStatus": "REQUIRES_USER",
+      "expectedIsFillable": false
+    },
+    "lowConfidence": {
+      "websiteField": {
+        "fieldId": "f_low_conf_vague",
+        "name": "custom_opt_code_9",
+        "label": "Reference Code",
+        "type": "text",
+        "role": "textbox",
+        "placeholder": "Ref #",
+        "selector": "#custom_opt_code_9"
+      },
+      "expectedStatus": "REQUIRES_USER",
+      "expectedIsFillable": false
+    }
+  }
+}

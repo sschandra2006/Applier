@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "2.0.0",
+  "checkpointId": "chk_8f17c492-23ef-4f51-b844-320d5718dfb5",
+  "applicationId": "app_92384729384",
+  "jobId": "job_102938402",
+  "page": {
+    "pageId": "page_01",
+    "title": "Admissions Application - Personal Information"
+  },
+  "url": "https://portal.university.edu/admissions/step2",
+  "semanticPage": {
+    "semanticType": "APPLICATION_FORM",
+    "title": "Personal Information",
+    "pageCategory": "FORM"
+  },
+  "currentField": "applicant.email",
+  "completedFields": [
+    "applicant.fullName",
+    "applicant.dateOfBirth",
+    "contact.phone"
+  ],
+  "executionStep": 3,
+  "browserStateMetadata": {
+    "cookiesCount": 4,
+    "activeTabs": 1,
+    "viewport": { "width": 1280, "height": 800 },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+  },
+  "pendingCheckpoint": null,
+  "lastVerifiedAction": {
+    "actionType": "fill",
+    "target": "contact.phone",
+    "verifiedAt": "2026-10-04T18:30:00.000Z",
+    "verificationResult": {
+      "passed": true,
+      "status": "SUCCESS"
+    }
+  },
+  "sanitizedAnswers": {
+    "applicant.fullName": "Rahul Kumar",
+    "applicant.dateOfBirth": "2006-08-14",
+    "contact.phone": "+919876543210"
+  },
+  "status": "RUNNING",
+  "createdAt": "2026-10-04T18:30:00.000Z",
+  "updatedAt": "2026-10-04T18:30:00.000Z"
+}

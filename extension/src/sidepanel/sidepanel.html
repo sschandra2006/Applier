@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applier — Side Panel</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="applier-container">
+    <!-- Top Header -->
+    <header class="applier-header">
+      <div class="brand">
+        <span class="brand-icon">⚡</span>
+        <h1 class="brand-title">Applier</h1>
+      </div>
+      <div id="auth-status-container" class="auth-status">
+        <span id="user-badge" class="badge badge-unauth">Sign In</span>
+      </div>
+    </header>
+
+    <!-- Error Banner -->
+    <div id="error-banner" class="banner banner-error hidden">
+      <span class="banner-icon">⚠️</span>
+      <span id="error-message" class="banner-text"></span>
+      <button id="error-dismiss-btn" class="btn-icon">×</button>
+    </div>
+
+    <!-- Login Modal / Form (when unauthenticated) -->
+    <div id="auth-view" class="card auth-card hidden">
+      <h2>Sign in to Applier</h2>
+      <p class="subtitle">Access your verified profile and tailored resumes.</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" required placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+    </div>
+
+    <!-- Main Content Area -->
+    <main id="main-content">
+      <!-- 1. Idle View: No Job Page Detected -->
+      <section id="view-idle" class="card empty-state">
+        <div class="empty-icon">📄</div>
+        <h3>No Job Application Open</h3>
+        <p>Navigate to any supported job application page (Greenhouse, Lever, Workday, Ashby, or custom portal) to begin.</p>
+        <button id="btn-refresh-status" class="btn btn-secondary">Check Current Page</button>
+      </section>
+
+      <!-- 2. Job Detected View: "Apply with Applier" CTA -->
+      <section id="view-job-detected" class="card hidden">
+        <div class="job-meta">
+          <span id="job-ats-badge" class="badge badge-portal">Greenhouse</span>
+          <h2 id="job-title-display">Senior Platform Engineer</h2>
+          <h4 id="job-company-display">TechCorp</h4>
+          <p id="job-location-display" class="location-text">San Francisco, CA</p>
+        </div>
+        <div class="action-block">
+          <button id="btn-start-apply" class="btn btn-primary btn-large btn-block">
+            Apply with Applier
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. Analyzing State -->
+      <section id="view-analyzing" class="card hidden text-center">
+        <div class="spinner"></div>
+        <h3>Analyzing Job Application</h3>
+        <p class="subtitle">Comparing requirements against verified profile and checking form fields...</p>
+      </section>
+
+      <!-- 4. Missing Information Question Card -->
+      <section id="view-questions" class="card hidden">
+        <div class="section-header">
+          <span id="question-priority-badge" class="badge badge-required">REQUIRED</span>
+          <span id="question-count-badge" class="badge badge-neutral">1 of 2</span>
+        </div>
+        <h3 id="question-text" class="question-title">Do you have experience with Go?</h3>
+        <p id="question-context" class="context-desc">The job description requires Go for high-throughput pipelines.</p>
+        
+        <div id="question-options-container" class="options-container">
+          <!-- Dynamically inserted options -->
+        </div>
+
+        <div id="question-details-container" class="details-container hidden">
+          <label id="question-detail-label" for="question-detail-input">Provide details:</label>
+          <input type="text" id="question-detail-input" class="form-input" placeholder="Years of experience or project context">
+        </div>
+
+        <div class="btn-group">
+          <button id="btn-submit-answer" class="btn btn-primary">Submit Answer</button>
+          <button id="btn-skip-question" class="btn btn-secondary">Skip</button>
+        </div>
+      </section>
+
+      <!-- 5. Tailored Resume Generation & Preview -->
+      <section id="view-resume" class="card hidden">
+        <h3>Tailored Resume</h3>
+        <p class="subtitle">Evidence-based qualifications matched to job description.</p>
+        
+        <div class="keywords-box">
+          <label>Matched Keywords:</label>
+          <div id="matched-keywords-list" class="tags-container"></div>
+        </div>
+
+        <div class="form-group template-select">
+          <label for="template-select">Resume Template:</label>
+          <select id="template-select" class="form-select">
+            <option value="ATS_SINGLE_COLUMN">ATS Single-Column (Standard)</option>
+            <option value="TECHNICAL">Technical & Engineering</option>
+            <option value="MODERN_PROFESSIONAL">Modern Professional</option>
+          </select>
+        </div>
+
+        <div class="action-block">
+          <button id="btn-generate-resume" class="btn btn-primary btn-block">
+            Generate Tailored PDF
+          </button>
+        </div>
+
+        <div id="resume-preview-block" class="preview-block hidden">
+          <div class="preview-actions">
+            <span class="preview-badge">✓ PDF Ready</span>
+            <a id="link-preview-pdf" href="#" target="_blank" class="btn-link">Preview PDF ↗</a>
+          </div>
+          <p id="resume-summary-preview" class="summary-preview"></p>
+        </div>
+      </section>
+
+      <!-- 6. Form Filling & File Attachment -->
+      <section id="view-autofill" class="card hidden">
+        <h3>Application Form Filling</h3>
+        <p class="subtitle">Review detected fields ready for automated population.</p>
+
+        <div class="mapping-summary">
+          <div class="stat-box">
+            <span id="mapped-count" class="stat-number">0</span>
+            <span class="stat-label">Fields Mapped</span>
+          </div>
+          <div class="stat-box">
+            <span id="resume-attached-status" class="stat-number">PDF</span>
+            <span class="stat-label">Resume Attachment</span>
+          </div>
+        </div>
+
+        <button id="btn-autofill" class="btn btn-primary btn-block">
+          Autofill Form & Attach Resume
+        </button>
+
+        <div id="autofill-progress" class="progress-box hidden">
+          <div class="progress-bar-container">
+            <div id="fill-progress-bar" class="progress-bar"></div>
+          </div>
+          <span id="fill-progress-text" class="progress-text">Filling fields...</span>
+        </div>
+      </section>
+
+      <!-- 7. Final Review & Confirmation Barrier -->
+      <section id="view-review" class="card hidden">
+        <div class="review-header">
+          <span class="badge badge-success">✓ Ready for Review</span>
+          <h2>Application Review</h2>
+        </div>
+        <p class="review-warning">
+          <strong>Review Required:</strong> Please verify all populated fields in the job portal tab before final submission.
+        </p>
+
+        <div id="review-fields-list" class="review-fields-table">
+          <!-- Dynamically inserted review fields -->
+        </div>
+
+        <div class="review-confirm-box">
+          <label class="checkbox-label">
+            <input type="checkbox" id="chk-confirm-accurate">
+            <span>I have reviewed the information in the application form and verified its accuracy.</span>
+          </label>
+        </div>
+
+        <button id="btn-confirm-submit" class="btn btn-success btn-large btn-block" disabled>
+          Ready to Submit in Tab
+        </button>
+      </section>
+
+      <!-- 8. Submission Outcome Screen -->
+      <section id="view-outcome" class="card hidden">
+        <div class="outcome-header text-center">
+          <div id="outcome-icon" class="status-icon" style="font-size: 40px; margin-bottom: 8px;">🎉</div>
+          <h2 id="outcome-title">Application Submitted!</h2>
+          <p id="outcome-subtitle" class="subtitle">Your application has been recorded in your tracker.</p>
+        </div>
+        <div class="outcome-details" style="background: #f8fafc; border-radius: 8px; padding: 12px; margin: 16px 0; border: 1px solid #e2e8f0;">
+          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span class="detail-label" style="font-weight: 600; color: #64748b;">Reference #:</span>
+            <span id="outcome-ref" class="detail-value font-mono" style="font-weight: bold; color: #1e293b;">REF-123456</span>
+          </div>
+          <div class="detail-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span class="detail-label" style="font-weight: 600; color: #64748b;">Portal:</span>
+            <span id="outcome-portal" class="detail-value" style="color: #1e293b;">Greenhouse</span>
+          </div>
+          <div class="detail-row" style="display: flex; justify-content: space-between;">
+            <span class="detail-label" style="font-weight: 600; color: #64748b;">Timestamp:</span>
+            <span id="outcome-time" class="detail-value" style="color: #1e293b;">Today</span>
+          </div>
+        </div>
+        <div id="outcome-unknown-notice" class="banner banner-warning hidden" style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 10px; margin-bottom: 16px; color: #92400e; font-size: 13px;">
+          <span>⚠️ <strong>Submission Status Unknown:</strong> Submission timed out or redirected. Do not retry automatically. Please check your email or employer portal manually.</span>
+        </div>
+        <div class="action-block">
+          <button id="btn-outcome-done" class="btn btn-primary btn-block">Done</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Footer -->
+    <footer class="applier-footer">
+      <span class="security-note">🔒 Zero Hallucination Guarantee · Verified Vault</span>
+      <button id="btn-reset-workflow" class="btn-text">Reset</button>
+    </footer>
+  </div>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

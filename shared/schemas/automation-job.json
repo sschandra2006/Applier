@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/automation-job.json",
+  "title": "AutomationJob",
+  "description": "Lifecycle state and progress record for browser automation execution.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "jobId": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "interviewStateId": {
+      "type": "string"
+    },
+    "workflowId": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "QUEUED",
+        "RUNNING",
+        "PAUSED_OTP",
+        "PAUSED_CAPTCHA",
+        "PAUSED_PAYMENT",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED"
+      ]
+    },
+    "progress": {
+      "type": "object",
+      "properties": {
+        "currentStep": { "type": "integer", "minimum": 0 },
+        "totalSteps": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["currentStep", "totalSteps"]
+    },
+    "currentStepIndex": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "executionPlan": {
+      "type": "array",
+      "items": {
+        "$ref": "https://applier.ai/schemas/execution-step.json"
+      }
+    },
+    "pauseContext": {
+      "$ref": "https://applier.ai/schemas/human-checkpoint.json"
+    },
+    "errorDetails": {
+      "type": ["string", "null"]
+    },
+    "logs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string" },
+          "level": { "type": "string", "enum": ["INFO", "WARNING", "ERROR"] },
+          "message": { "type": "string" },
+          "additionalData": { "type": "object" }
+        },
+        "required": ["message"]
+      }
+    },
+    "createdAt": {
+      "type": "string"
+    },
+    "updatedAt": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "jobId", "userId", "workflowId", "status", "progress"],
+  "additionalProperties": true
+}

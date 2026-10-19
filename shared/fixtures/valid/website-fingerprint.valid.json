@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "2.0.0",
+  "fingerprintId": "wfp_careers_example_com",
+  "domain": "careers.example.com",
+  "portalIdentity": {
+    "name": "Acme Job Portal",
+    "portalType": "GREENHOUSE",
+    "framework": "React",
+    "structuralHash": "hash_struct_greenhouse_v1"
+  },
+  "knowledgeVersion": 1,
+  "status": "ACTIVE",
+  "pageFingerprints": [
+    {
+      "pageId": "page_landing_01",
+      "semanticPageType": "APPLICATION_FORM",
+      "urlPattern": "^https://careers\\.example\\.com/jobs/\\d+",
+      "titlePattern": "Apply for .* - Acme Corp",
+      "domSignature": "sig_page_app_v1",
+      "confidence": 0.95,
+      "tier": "TRUSTED"
+    }
+  ],
+  "semanticFields": [
+    {
+      "semanticTarget": "applicant.fullName",
+      "learnedStrategies": [
+        {
+          "strategy": "LABEL",
+          "selector": "#first_name",
+          "confidence": 0.95,
+          "successCount": 5,
+          "failureCount": 0,
+          "tier": "TRUSTED",
+          "lastVerifiedAt": "2026-10-06T12:00:00.000Z"
+        }
+      ],
+      "confidence": 0.95,
+      "tier": "TRUSTED"
+    }
+  ],
+  "successfulLocatorStrategies": [
+    {
+      "semanticTarget": "applicant.fullName",
+      "strategy": "LABEL",
+      "selector": "#first_name",
+      "confidence": 0.95,
+      "tier": "TRUSTED"
+    }
+  ],
+  "workflowTransitions": [
+    {
+      "fromPage": "APPLICATION_FORM",
+      "toPage": "SUCCESS_PAGE",
+      "triggerAction": "click(#submit_app)",
+      "confidence": 0.95,
+      "tier": "TRUSTED",
+      "successCount": 5,
+      "failureCount": 0
+    }
+  ],
+  "uploadConstraints": [
+    {
+      "semanticField": "documents.resume",
+      "acceptedExtensions": [".pdf", ".docx"],
+      "maxSizeBytes": 5242880,
+      "observedAcceptAttribute": ".pdf,.docx",
+      "confidence": 0.98
+    }
+  ],
+  "checkpointBehavior": [
+    {
+      "pageType": "APPLICATION_FORM",
+      "checkpointType": "CAPTCHA",
+      "observedStep": 4,
+      "frequency": 0.1,
+      "detectionSignals": ["#recaptcha", ".g-recaptcha"]
+    }
+  ],
+  "recoveryStrategies": [
+    {
+      "failureType": "UNEXPECTED_MODAL",
+      "successfulRecoveryAction": "DISMISS_MODAL",
+      "confidence": 0.9,
+      "successCount": 3,
+      "failureCount": 0
+    }
+  ],
+  "statistics": {
+    "totalExecutions": 5,
+    "successfulExecutions": 5,
+    "failedExecutions": 0,
+    "firstSeenAt": "2026-10-01T10:00:00.000Z",
+    "lastSeenAt": "2026-10-06T12:00:00.000Z",
+    "lastSuccessAt": "2026-10-06T12:00:00.000Z"
+  }
+}

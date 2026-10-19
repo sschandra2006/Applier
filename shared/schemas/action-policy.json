@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/action-policy.json",
+  "title": "ActionPolicy",
+  "description": "Evaluation decision determining whether a proposed AI browser action may execute.",
+  "type": "object",
+  "$defs": {
+    "ActionRiskCategory": {
+      "type": "string",
+      "enum": ["LOW_RISK", "NORMAL", "SENSITIVE", "CRITICAL"]
+    },
+    "PolicyDecision": {
+      "type": "string",
+      "enum": ["ALLOWED", "BLOCKED", "REQUIRES_CONFIRMATION", "REQUIRES_USER"]
+    }
+  },
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "evaluationId": {
+      "type": "string"
+    },
+    "actionType": {
+      "type": "string"
+    },
+    "riskCategory": {
+      "$ref": "#/$defs/ActionRiskCategory"
+    },
+    "decision": {
+      "$ref": "#/$defs/PolicyDecision"
+    },
+    "target": {
+      "type": ["string", "object", "null"]
+    },
+    "allowed": {
+      "type": "boolean"
+    },
+    "violationCode": {
+      "type": ["string", "null"]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "default": 1.0
+    },
+    "fieldStateHash": {
+      "type": ["string", "null"]
+    },
+    "confirmationToken": {
+      "type": ["string", "null"]
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "evaluationId",
+    "actionType",
+    "riskCategory",
+    "decision",
+    "allowed",
+    "reason"
+  ],
+  "additionalProperties": true
+}

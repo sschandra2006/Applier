@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/applicant-profile.json",
+  "title": "ApplicantProfile",
+  "description": "Canonical representation of a user profile across Applier 2.0.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0",
+      "description": "Schema version tracking."
+    },
+    "applicantId": {
+      "type": "string",
+      "description": "Unique identifier for the applicant (UUID or ObjectId)."
+    },
+    "userId": {
+      "type": "string",
+      "description": "Associated user account ID."
+    },
+    "fullName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Applicant's official full name."
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Contact email address."
+    },
+    "phone": {
+      "type": "string",
+      "pattern": "^[0-9+\\-\\s]{7,15}$",
+      "description": "Contact phone number."
+    },
+    "dateOfBirth": {
+      "type": "string",
+      "description": "Date of birth (ISO 8601 or DD/MM/YYYY)."
+    },
+    "gender": {
+      "type": "string",
+      "enum": ["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"],
+      "description": "Applicant's gender."
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "street": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "pincode": { "type": "string" },
+        "country": { "type": "string", "default": "India" }
+      },
+      "additionalProperties": true
+    },
+    "identityNumbers": {
+      "type": "object",
+      "properties": {
+        "aadhaar": { "type": "string" },
+        "pan": { "type": "string" },
+        "passport": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "institution": { "type": "string" },
+          "degree": { "type": "string" },
+          "fieldOfStudy": { "type": "string" },
+          "percentageOrCgpa": { "type": "string" },
+          "passingYear": { "type": ["string", "number"] }
+        },
+        "additionalProperties": true
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": ["schemaVersion", "applicantId", "fullName", "email"],
+  "additionalProperties": true
+}

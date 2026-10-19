@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/system-metrics.json",
+  "title": "SystemMetrics",
+  "description": "Canonical contract specification for Phase 25 Production Scaling and Observability metrics.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0",
+      "default": "2.0.0"
+    },
+    "metricsId": {
+      "type": "string",
+      "pattern": "^met_[a-zA-Z0-9_.-]+$"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "jobLatency": {
+      "type": "object",
+      "properties": {
+        "p50": { "type": "number", "minimum": 0 },
+        "p90": { "type": "number", "minimum": 0 },
+        "p99": { "type": "number", "minimum": 0 },
+        "avg": { "type": "number", "minimum": 0 },
+        "sampleCount": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["p50", "p90", "p99", "avg", "sampleCount"]
+    },
+    "browserStartup": {
+      "type": "object",
+      "properties": {
+        "avgMs": { "type": "number", "minimum": 0 },
+        "p95Ms": { "type": "number", "minimum": 0 },
+        "sampleCount": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["avgMs", "p95Ms", "sampleCount"]
+    },
+    "aiLatency": {
+      "type": "object",
+      "properties": {
+        "avgMs": { "type": "number", "minimum": 0 },
+        "p95Ms": { "type": "number", "minimum": 0 },
+        "sampleCount": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["avgMs", "p95Ms", "sampleCount"]
+    },
+    "aiCost": {
+      "type": "object",
+      "properties": {
+        "promptTokens": { "type": "integer", "minimum": 0 },
+        "completionTokens": { "type": "integer", "minimum": 0 },
+        "totalTokens": { "type": "integer", "minimum": 0 },
+        "totalCostUsd": { "type": "number", "minimum": 0 }
+      },
+      "required": ["promptTokens", "completionTokens", "totalTokens", "totalCostUsd"]
+    },
+    "documentProcessingTime": {
+      "type": "object",
+      "properties": {
+        "avgMs": { "type": "number", "minimum": 0 },
+        "sampleCount": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["avgMs", "sampleCount"]
+    },
+    "fieldMappingConfidence": {
+      "type": "object",
+      "properties": {
+        "avgScore": { "type": "number", "minimum": 0, "maximum": 1 },
+        "minScore": { "type": "number", "minimum": 0, "maximum": 1 },
+        "totalMappedFields": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["avgScore", "minScore", "totalMappedFields"]
+    },
+    "recoveryRate": {
+      "type": "object",
+      "properties": {
+        "rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "successfulRecoveries": { "type": "integer", "minimum": 0 },
+        "totalRecoveryAttempts": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["rate", "successfulRecoveries", "totalRecoveryAttempts"]
+    },
+    "submissionSuccess": {
+      "type": "object",
+      "properties": {
+        "rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "successfulCount": { "type": "integer", "minimum": 0 },
+        "totalSubmissions": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["rate", "successfulCount", "totalSubmissions"]
+    },
+    "submissionUncertainty": {
+      "type": "object",
+      "properties": {
+        "rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "uncertainCount": { "type": "integer", "minimum": 0 },
+        "totalSubmissions": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["rate", "uncertainCount", "totalSubmissions"]
+    },
+    "workerFailures": {
+      "type": "object",
+      "properties": {
+        "crashCount": { "type": "integer", "minimum": 0 },
+        "crashedWorkers": { "type": "array", "items": { "type": "string" } },
+        "timeoutAborts": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["crashCount", "crashedWorkers", "timeoutAborts"]
+    },
+    "queueDepth": {
+      "type": "object",
+      "properties": {
+        "waiting": { "type": "integer", "minimum": 0 },
+        "active": { "type": "integer", "minimum": 0 },
+        "completed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["waiting", "active", "completed", "failed"]
+    },
+    "resourceUsage": {
+      "type": "object",
+      "properties": {
+        "cpuPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "memoryRssMb": { "type": "number", "minimum": 0 },
+        "memoryHeapUsedMb": { "type": "number", "minimum": 0 },
+        "activeBrowsers": { "type": "integer", "minimum": 0 },
+        "activeWorkers": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["cpuPercent", "memoryRssMb", "memoryHeapUsedMb", "activeBrowsers", "activeWorkers"]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "metricsId",
+    "timestamp",
+    "jobLatency",
+    "browserStartup",
+    "aiLatency",
+    "aiCost",
+    "documentProcessingTime",
+    "fieldMappingConfidence",
+    "recoveryRate",
+    "submissionSuccess",
+    "submissionUncertainty",
+    "workerFailures",
+    "queueDepth",
+    "resourceUsage"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/application.json",
+  "title": "Application",
+  "description": "Historical record of an executed application and submitted receipt.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "applicationId": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "workflowId": {
+      "type": "string"
+    },
+    "interviewStateId": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "READY", "SUBMITTING", "SUBMITTED", "SUBMISSION_UNCERTAIN", "SUBMISSION_FAILED", "IN_REVIEW", "APPROVED", "REJECTED"],
+      "default": "SUBMITTED"
+    },
+    "submissionStatus": {
+      "type": "string"
+    },
+    "referenceNumber": {
+      "type": ["string", "null"]
+    },
+    "confirmationUrl": {
+      "type": ["string", "null"]
+    },
+    "receipt": {
+      "type": ["object", "null"]
+    },
+    "receiptScreenshot": {
+      "type": ["string", "null"]
+    },
+    "finalPageEvidence": {
+      "type": ["object", "null"]
+    },
+    "applicationNumber": {
+      "type": ["string", "null"]
+    },
+    "receiptUrl": {
+      "type": ["string", "null"]
+    },
+    "submittedAt": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": ["string", "null"]
+    },
+    "createdAt": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "applicationId", "userId", "workflowId", "interviewStateId", "status"],
+  "additionalProperties": true
+}

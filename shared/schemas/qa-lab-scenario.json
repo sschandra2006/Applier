@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/qa-lab-scenario.json",
+  "title": "QaLabScenario",
+  "description": "Canonical contract specification for Phase 24 Universal Browser Automation QA Laboratory test scenarios.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0",
+      "default": "2.0.0"
+    },
+    "scenarioId": {
+      "type": "string",
+      "pattern": "^qa-[0-9]{2}-[a-z0-9-]+$"
+    },
+    "scenarioNumber": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 27
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "FORM_PARSING",
+        "SPA_FRAMEWORK",
+        "DYNAMIC_UI",
+        "HIERARCHY_ISOLATION",
+        "NETWORK_ASYNC",
+        "AUTHENTICATION_BARRIER",
+        "AMBIGUITY_RESOLUTION",
+        "SUBMISSION_VERIFICATION"
+      ]
+    },
+    "failureClass": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "SELECTOR_FAILURE",
+        "ELEMENT_MISSING",
+        "TIMEOUT",
+        "NAVIGATION_FAILURE",
+        "SESSION_EXPIRED",
+        "UNEXPECTED_MODAL",
+        "VALIDATION_FAILURE",
+        "UPLOAD_REJECTION",
+        "PAGE_CHANGED",
+        "BROWSER_CRASH",
+        "AMBIGUOUS_SUBMISSION"
+      ]
+    },
+    "breakMechanism": {
+      "type": "string"
+    },
+    "resilienceStrategy": {
+      "type": "string"
+    },
+    "testLevels": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "Unit",
+          "Integration",
+          "Browser",
+          "End-to-End",
+          "Recovery",
+          "Failure injection",
+          "Load"
+        ]
+      },
+      "minItems": 1
+    },
+    "htmlFixture": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "scenarioId",
+    "scenarioNumber",
+    "name",
+    "category",
+    "failureClass",
+    "testLevels",
+    "htmlFixture"
+  ],
+  "additionalProperties": false
+}

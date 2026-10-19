@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/human-checkpoint.json",
+  "title": "HumanCheckpoint",
+  "description": "Context and payload generated when Playwright halts for OTP, CAPTCHA, or user confirmation.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0",
+      "default": "2.0.0"
+    },
+    "checkpointId": {
+      "type": "string"
+    },
+    "fieldName": {
+      "type": "string",
+      "description": "Target field key (e.g. otp, captcha, otpCode)."
+    },
+    "pauseReason": {
+      "type": "string",
+      "enum": ["OTP", "CAPTCHA", "PAYMENT", "MANUAL_REVIEW"]
+    },
+    "captchaImageBase64": {
+      "type": ["string", "null"]
+    },
+    "pageScreenshotBase64": {
+      "type": ["string", "null"]
+    },
+    "stepIndex": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "resumeFromIndex": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false
+    },
+    "resolvedValue": {
+      "type": ["string", "null"]
+    },
+    "createdAt": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "fieldName", "pauseReason"],
+  "additionalProperties": true
+}

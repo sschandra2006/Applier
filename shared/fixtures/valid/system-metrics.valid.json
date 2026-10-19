@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "2.0.0",
+  "metricsId": "met_production_baseline_001",
+  "timestamp": "2026-10-07T14:30:00.000Z",
+  "jobLatency": {
+    "p50": 1850.5,
+    "p90": 4200.0,
+    "p99": 8500.0,
+    "avg": 2450.0,
+    "sampleCount": 150
+  },
+  "browserStartup": {
+    "avgMs": 420.0,
+    "p95Ms": 810.0,
+    "sampleCount": 45
+  },
+  "aiLatency": {
+    "avgMs": 350.0,
+    "p95Ms": 620.0,
+    "sampleCount": 120
+  },
+  "aiCost": {
+    "promptTokens": 18450,
+    "completionTokens": 3200,
+    "totalTokens": 21650,
+    "totalCostUsd": 0.0433
+  },
+  "documentProcessingTime": {
+    "avgMs": 145.0,
+    "sampleCount": 30
+  },
+  "fieldMappingConfidence": {
+    "avgScore": 0.94,
+    "minScore": 0.82,
+    "totalMappedFields": 128
+  },
+  "recoveryRate": {
+    "rate": 0.92,
+    "successfulRecoveries": 23,
+    "totalRecoveryAttempts": 25
+  },
+  "submissionSuccess": {
+    "rate": 0.98,
+    "successfulCount": 49,
+    "totalSubmissions": 50
+  },
+  "submissionUncertainty": {
+    "rate": 0.02,
+    "uncertainCount": 1,
+    "totalSubmissions": 50
+  },
+  "workerFailures": {
+    "crashCount": 0,
+    "crashedWorkers": [],
+    "timeoutAborts": 0
+  },
+  "queueDepth": {
+    "waiting": 3,
+    "active": 6,
+    "completed": 140,
+    "failed": 1
+  },
+  "resourceUsage": {
+    "cpuPercent": 42.5,
+    "memoryRssMb": 650.0,
+    "memoryHeapUsedMb": 280.0,
+    "activeBrowsers": 6,
+    "activeWorkers": 4
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/execution-checkpoint.json",
+  "title": "ExecutionCheckpoint",
+  "description": "Durable state snapshot capturing browser execution progress, session metadata, completed fields, and last verified action.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "checkpointId": {
+      "type": "string"
+    },
+    "applicationId": {
+      "type": ["string", "null"]
+    },
+    "jobId": {
+      "type": "string"
+    },
+    "page": {
+      "type": ["string", "object"]
+    },
+    "url": {
+      "type": "string"
+    },
+    "pageUrl": {
+      "type": "string"
+    },
+    "semanticPage": {
+      "type": ["string", "object", "null"]
+    },
+    "currentField": {
+      "type": ["string", "null"]
+    },
+    "completedFields": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "executionStep": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "stepIndex": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "browserStateMetadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "pendingCheckpoint": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    },
+    "lastVerifiedAction": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    },
+    "sanitizedAnswers": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "snapshotAnswers": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "status": {
+      "type": "string",
+      "enum": ["QUEUED", "RUNNING", "PAUSED_OTP", "PAUSED_CAPTCHA", "PAUSED_PAYMENT", "COMPLETED", "FAILED", "CANCELLED"]
+    },
+    "createdAt": {
+      "type": "string"
+    },
+    "updatedAt": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "jobId", "status"],
+  "additionalProperties": true
+}

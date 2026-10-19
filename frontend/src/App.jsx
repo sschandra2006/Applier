@@ -7,6 +7,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './features/dashboard/Dashboard';
 import NewApplication from './features/dashboard/NewApplication';
 import DocumentVault from './features/dashboard/DocumentVault';
+import ProfessionalProfileView from './features/dashboard/ProfessionalProfileView';
 import Settings from './features/dashboard/Settings';
 import AdminDashboard from './features/admin/AdminDashboard';
 import { ErrorBoundary } from './core/components/ErrorBoundary.jsx';
@@ -46,6 +47,7 @@ export default function App() {
           }>
             <Route index element={<Dashboard />} />
             <Route path="new" element={<NewApplication />} />
+            <Route path="profile" element={<ProfessionalProfileView />} />
             <Route path="documents" element={<DocumentVault />} />
             <Route path="settings" element={<Settings />} />
           </Route>

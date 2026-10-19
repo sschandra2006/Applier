@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "2.0.0",
+  "workflowId": "wf_test_12345",
+  "name": "National Scholarship Fresh Application 2026",
+  "targetUrl": "https://scholarships.gov.in/fresh",
+  "urlHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "landingScreenshot": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+  "pages": [
+    {
+      "id": "page_personal_details",
+      "title": "Personal & Academic Information",
+      "url": "https://scholarships.gov.in/fresh/step1",
+      "steps": [
+        {
+          "id": "fullName",
+          "type": "text",
+          "label": "Full Name as per Aadhaar",
+          "selector": "#txt_fullName",
+          "required": true,
+          "validation": { "pattern": "^[A-Za-z ]+$" }
+        },
+        {
+          "id": "category",
+          "type": "select",
+          "label": "Category",
+          "selector": "#ddl_category",
+          "required": true,
+          "options": [
+            { "value": "GEN", "label": "General" },
+            { "value": "OBC", "label": "Other Backward Class" }
+          ]
+        }
+      ]
+    }
+  ],
+  "applicationOptions": [
+    { "id": "fresh", "label": "Fresh Application" }
+  ],
+  "metadata": { "portalType": "scholarship" }
+}

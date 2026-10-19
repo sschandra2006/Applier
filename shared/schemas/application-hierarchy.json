@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/application-hierarchy.json",
+  "title": "ApplicationHierarchy",
+  "description": "5-level hierarchical decomposition of large applications for context optimization: Application -> Page -> Section -> Field group -> Field.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "applicationId": {
+      "type": "string"
+    },
+    "portalDomain": {
+      "type": "string"
+    },
+    "totalFieldCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pageId": { "type": "string" },
+          "pageNumber": { "type": "integer", "minimum": 1 },
+          "pageType": { "type": "string" },
+          "pageFingerprint": { "type": "string" },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sectionId": { "type": "string" },
+                "sectionName": { "type": "string" },
+                "sectionPurpose": { "type": "string" },
+                "sectionFingerprint": { "type": "string" },
+                "status": {
+                  "type": "string",
+                  "enum": ["PENDING", "ACTIVE", "COMPLETED", "SKIPPED"]
+                },
+                "fieldGroups": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "groupId": { "type": "string" },
+                      "groupName": { "type": "string" },
+                      "fields": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "fieldId": { "type": "string" },
+                            "name": { "type": "string" },
+                            "type": { "type": "string" },
+                            "label": { "type": "string" },
+                            "selector": { "type": "string" },
+                            "semanticTarget": { "type": "string" },
+                            "required": { "type": "boolean" },
+                            "value": { "type": ["string", "number", "boolean", "null"] }
+                          },
+                          "required": ["fieldId", "name", "type"]
+                        }
+                      }
+                    },
+                    "required": ["groupId", "groupName", "fields"]
+                  }
+                }
+              },
+              "required": ["sectionId", "sectionName", "fieldGroups"]
+            }
+          }
+        },
+        "required": ["pageId", "sections"]
+      }
+    },
+    "activeSectionId": {
+      "type": ["string", "null"]
+    },
+    "optimizedContextMetrics": {
+      "type": ["object", "null"],
+      "properties": {
+        "monolithicTokenEstimate": { "type": "integer" },
+        "optimizedSectionTokens": { "type": "integer" },
+        "tokenSavingsRatio": { "type": "number" },
+        "cacheHit": { "type": "boolean" }
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "applicationId",
+    "totalFieldCount",
+    "pages"
+  ]
+}

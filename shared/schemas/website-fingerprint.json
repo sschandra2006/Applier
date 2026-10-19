@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/website-fingerprint.json",
+  "title": "WebsiteFingerprint",
+  "description": "Durable learned behavior and structural fingerprint for a website domain and portal.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "fingerprintId": {
+      "type": "string",
+      "pattern": "^wfp_[a-zA-Z0-9_.-]+$"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "portalIdentity": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "portalType": {
+          "type": "string"
+        },
+        "framework": {
+          "type": ["string", "null"]
+        },
+        "structuralHash": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "portalType", "structuralHash"],
+      "additionalProperties": true
+    },
+    "knowledgeVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ACTIVE", "STALE", "INVALIDATED", "SUPERSEDED"]
+    },
+    "pageFingerprints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pageId": {
+            "type": "string"
+          },
+          "semanticPageType": {
+            "type": "string"
+          },
+          "urlPattern": {
+            "type": "string"
+          },
+          "titlePattern": {
+            "type": ["string", "null"]
+          },
+          "domSignature": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "tier": {
+            "type": "string",
+            "enum": ["CANDIDATE", "TRUSTED", "DEPRECATED"]
+          }
+        },
+        "required": ["pageId", "semanticPageType", "domSignature", "confidence", "tier"],
+        "additionalProperties": true
+      }
+    },
+    "semanticFields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "semanticTarget": {
+            "type": "string"
+          },
+          "learnedStrategies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "strategy": {
+                  "type": "string"
+                },
+                "selector": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "successCount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "failureCount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "tier": {
+                  "type": "string",
+                  "enum": ["CANDIDATE", "TRUSTED", "DEPRECATED"]
+                },
+                "lastVerifiedAt": {
+                  "type": ["string", "null"]
+                }
+              },
+              "required": ["strategy", "selector", "confidence", "successCount", "failureCount", "tier"],
+              "additionalProperties": true
+            }
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "tier": {
+            "type": "string",
+            "enum": ["CANDIDATE", "TRUSTED", "DEPRECATED"]
+          }
+        },
+        "required": ["semanticTarget", "learnedStrategies", "confidence", "tier"],
+        "additionalProperties": true
+      }
+    },
+    "successfulLocatorStrategies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "semanticTarget": {
+            "type": "string"
+          },
+          "strategy": {
+            "type": "string"
+          },
+          "selector": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "tier": {
+            "type": "string",
+            "enum": ["CANDIDATE", "TRUSTED", "DEPRECATED"]
+          }
+        },
+        "required": ["semanticTarget", "strategy", "selector", "confidence", "tier"],
+        "additionalProperties": true
+      }
+    },
+    "workflowTransitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fromPage": {
+            "type": "string"
+          },
+          "toPage": {
+            "type": "string"
+          },
+          "triggerAction": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "tier": {
+            "type": "string",
+            "enum": ["CANDIDATE", "TRUSTED", "DEPRECATED"]
+          },
+          "successCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failureCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": ["fromPage", "toPage", "triggerAction", "confidence", "tier"],
+        "additionalProperties": true
+      }
+    },
+    "uploadConstraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "semanticField": {
+            "type": "string"
+          },
+          "acceptedExtensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxSizeBytes": {
+            "type": ["integer", "null"]
+          },
+          "observedAcceptAttribute": {
+            "type": ["string", "null"]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": ["semanticField", "acceptedExtensions", "confidence"],
+        "additionalProperties": true
+      }
+    },
+    "checkpointBehavior": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pageType": {
+            "type": "string"
+          },
+          "checkpointType": {
+            "type": "string",
+            "enum": ["OTP", "CAPTCHA", "HUMAN_REVIEW", "PAYMENT", "FINAL_CONFIRMATION"]
+          },
+          "observedStep": {
+            "type": ["integer", "null"]
+          },
+          "frequency": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "detectionSignals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["pageType", "checkpointType", "frequency"],
+        "additionalProperties": true
+      }
+    },
+    "recoveryStrategies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "failureType": {
+            "type": "string"
+          },
+          "successfulRecoveryAction": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "successCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "failureCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": ["failureType", "successfulRecoveryAction", "confidence"],
+        "additionalProperties": true
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "totalExecutions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "successfulExecutions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failedExecutions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "firstSeenAt": {
+          "type": "string"
+        },
+        "lastSeenAt": {
+          "type": "string"
+        },
+        "lastSuccessAt": {
+          "type": ["string", "null"]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "fingerprintId",
+    "domain",
+    "portalIdentity",
+    "knowledgeVersion",
+    "status",
+    "pageFingerprints",
+    "semanticFields",
+    "successfulLocatorStrategies",
+    "workflowTransitions",
+    "uploadConstraints",
+    "checkpointBehavior",
+    "recoveryStrategies"
+  ],
+  "additionalProperties": true
+}

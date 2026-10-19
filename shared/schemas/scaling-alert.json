@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/scaling-alert.json",
+  "title": "ScalingAlert",
+  "description": "Canonical contract specification for Phase 25 Production Scaling and Observability alerts.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0",
+      "default": "2.0.0"
+    },
+    "alertId": {
+      "type": "string",
+      "pattern": "^alt_[a-zA-Z0-9_.-]+$"
+    },
+    "alertType": {
+      "type": "string",
+      "enum": [
+        "HIGH_FAILURE_RATE",
+        "WORKER_CRASHES",
+        "QUEUE_BACKLOG",
+        "MEMORY_PRESSURE",
+        "AI_FAILURES",
+        "DATABASE_FAILURES"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "INFO",
+        "WARNING",
+        "CRITICAL"
+      ]
+    },
+    "message": {
+      "type": "string",
+      "minLength": 3
+    },
+    "triggerValue": {
+      "type": "number"
+    },
+    "thresholdValue": {
+      "type": "number"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "workerId": {
+      "type": ["string", "null"]
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "alertId",
+    "alertType",
+    "severity",
+    "message",
+    "triggerValue",
+    "thresholdValue",
+    "timestamp"
+  ]
+}

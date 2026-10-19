@@ -39,6 +39,8 @@ def process_interview_turn(state: dict, last_user_message: str) -> dict:
         "applicationOptions": state.get("applicationOptions") or [],
         "selectedOption": state.get("selectedOption"),
         "completedFields": list((state.get("answers") or {}).keys()),
+        "confirmationFields": state.get("confirmationFields") or {},
+        "conflictFields": state.get("conflictFields") or {},
         "availableDocuments": [d.get("type") or d.get("name") for d in (state.get("availableDocuments") or [])],
     }
 
@@ -46,7 +48,7 @@ def process_interview_turn(state: dict, last_user_message: str) -> dict:
     logging.getLogger("InterviewAI").info(f"COMPACT_STATE: {json.dumps(compact_state)}")
 
     prompt = f"""
-You are an intelligent Interview AI helping a user complete an application form based strictly on data scanned from the target website.
+You are an intelligent Interview AI helping a user complete an application form based strictly on data scanned from the target website and their verified Applicant Knowledge Graph.
 
 CRITICAL INSTRUCTION: You must NEVER invent or hallucinate questions. You may ONLY ask questions about fields explicitly listed in `pendingFields`.
 
@@ -60,8 +62,17 @@ Rules:
 
 2. Collecting Form Fields:
    - The `activeField` is the current field being collected (e.g. "{compact_state['activeField']}").
-   - If the user's message is an answer to `activeField` (any string, name, number, or text provided by the user), you MUST extract it as `{{"{compact_state['activeField']}": "<user_answer>"}}` in `extracted_data`.
-   - After extracting, set `nextField` to the NEXT field in `pendingFields` (the field immediately after `activeField`), and set `question` to clearly ask for that next field using its `label`.
+   - If the user's message is an answer to `activeField`:
+     - If `activeField` is in `confirmationFields` and the user confirms (e.g. "yes", "correct", "yep", "confirm", "that's right"), extract the known value from `confirmationFields[activeField]["value"]` as the answer.
+     - If `activeField` is in `conflictFields` and the user chooses one of the conflicting options, extract their chosen value as the answer.
+     - Otherwise, extract the user's provided text as `{{"{compact_state['activeField']}": "<user_answer>"}}` in `extracted_data`.
+   - After extracting, set `nextField` to the NEXT field in `pendingFields` (the field immediately after `activeField`).
+   - Check Knowledge Graph Context for `nextField`:
+     a. CONFLICT: If `nextField` is in `conflictFields`:
+        Show the conflicting values clearly and ask the user to resolve which value is correct (e.g., "We found conflicting records: X vs Y. Which one is correct?").
+     b. CONFIRMATION REQUIRED: If `nextField` is in `confirmationFields`:
+        Ask the user to confirm the known value rather than asking from scratch (e.g., "We found that your father's name is John Doe. Could you please confirm if this is correct?").
+     c. UNKNOWN: Clearly ask for that next field using its `label`.
    - IMPORTANT FOR DROPDOWNS/SELECT FIELDS: If `nextField` has dropdown `options`, list the available option labels clearly in your question (e.g., "Select Language (Choices: English, Hindi, Gujarati, Marathi...)").
    - If the user's message is just a greeting (e.g. "Hello", "Hi"), leave `extracted_data` as {{}}, set `nextField` to `activeField`, and ask for `activeField`.
 
@@ -85,7 +96,7 @@ Return ONLY a valid JSON object matching this exact structure:
     )
 
     res = schema_obj.model_dump()
-    if not res.get("question") or not str(res.get("question")).trim():
+    if not res.get("question") or not str(res.get("question")).strip():
         res["question"] = "Thank you! All required details have been collected."
     if not res.get("nextField"):
         res["nextField"] = ""

@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/semantic-page-model.json",
+  "title": "SemanticPageModel",
+  "description": "AI-derived semantic understanding of page intent and form fields without execution selectors.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "modelId": {
+      "type": "string"
+    },
+    "observationId": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "pageType": {
+      "type": "string",
+      "enum": [
+        "LANDING",
+        "LOGIN",
+        "REGISTRATION",
+        "APPLICATION_FORM",
+        "DOCUMENT_UPLOAD",
+        "REVIEW",
+        "PAYMENT",
+        "OTP",
+        "CAPTCHA",
+        "SUCCESS",
+        "ERROR",
+        "UNKNOWN"
+      ]
+    },
+    "pageTypeConfidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "pageTypeReason": {
+      "type": "string"
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "elementId": {
+            "type": "string"
+          },
+          "semanticType": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "reason": {
+            "type": "string"
+          },
+          "isResolved": {
+            "type": "boolean"
+          }
+        },
+        "required": ["elementId", "semanticType", "confidence", "reason", "isResolved"]
+      }
+    },
+    "summary": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "analyzedAt": { "type": "string" },
+        "durationMs": { "type": "number" },
+        "cached": { "type": "boolean" },
+        "modelUsed": { "type": "string" },
+        "fieldCount": { "type": "integer" },
+        "resolvedCount": { "type": "integer" }
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "modelId",
+    "observationId",
+    "url",
+    "pageType",
+    "pageTypeConfidence",
+    "pageTypeReason",
+    "fields"
+  ],
+  "additionalProperties": true
+}

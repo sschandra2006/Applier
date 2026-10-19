@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "2.0.0",
+  "planId": "plan_bad",
+  "targetUrl": "https://example.com",
+  "steps": [
+    {
+      "stepIndex": 0,
+      "type": "invalid_unsupported_action_type"
+    }
+  ]
+}

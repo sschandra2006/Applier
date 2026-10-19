@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/verified-submission.json",
+  "title": "VerifiedSubmissionResult",
+  "description": "Comprehensive verified submission outcome and receipt evidence payload.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "submissionId": {
+      "type": "string"
+    },
+    "applicationId": {
+      "type": "string"
+    },
+    "jobId": {
+      "type": "string"
+    },
+    "submissionStatus": {
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "SUBMISSION_FAILED",
+        "SUBMISSION_UNCERTAIN",
+        "SUBMISSION_TIMEOUT",
+        "SUBMISSION_DUPLICATE_BLOCKED"
+      ]
+    },
+    "submittedAt": {
+      "type": "string"
+    },
+    "referenceNumber": {
+      "type": ["string", "null"]
+    },
+    "confirmationUrl": {
+      "type": "string"
+    },
+    "receipt": {
+      "type": ["object", "null"],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "receiptUrl": {
+          "type": ["string", "null"]
+        },
+        "receiptFilename": {
+          "type": ["string", "null"]
+        },
+        "receiptType": {
+          "type": ["string", "null"]
+        },
+        "receiptSummary": {
+          "type": ["string", "null"]
+        },
+        "capturedAt": {
+          "type": ["string", "null"]
+        },
+        "reason": {
+          "type": ["string", "null"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "receiptScreenshot": {
+      "type": ["string", "null"]
+    },
+    "finalPageEvidence": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "pageTitle": {
+          "type": "string"
+        },
+        "confirmationHeading": {
+          "type": ["string", "null"]
+        },
+        "confirmationText": {
+          "type": ["string", "null"]
+        },
+        "signalsDetected": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "errorSignals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "urlTransitioned": {
+          "type": "boolean"
+        },
+        "domStateHash": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url",
+        "signalsDetected"
+      ],
+      "additionalProperties": true
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "requiresHumanReview": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "submissionId",
+    "applicationId",
+    "submissionStatus",
+    "submittedAt",
+    "confirmationUrl",
+    "finalPageEvidence"
+  ],
+  "additionalProperties": true
+}

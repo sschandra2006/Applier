@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/application-review.json",
+  "title": "ApplicationReview",
+  "description": "Canonical contract for evidence-based application review containing fields structured around value, source, confidence, validation, status, conflicts, and confirmation locking.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "reviewId": {
+      "type": "string"
+    },
+    "applicationId": {
+      "type": "string"
+    },
+    "workflowId": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PENDING_REVIEW",
+        "READY_FOR_CONFIRMATION",
+        "CONFIRMED",
+        "LOCKED",
+        "MUTATED_INVALIDATED",
+        "HAS_CONFLICTS",
+        "INCOMPLETE"
+      ]
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fieldKey": {
+            "type": "string",
+            "description": "Semantic path or identifier of the field (e.g. applicant.dateOfBirth)."
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable label of the field (e.g. Date of Birth)."
+          },
+          "value": {
+            "description": "Normalized candidate value."
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "PROFILE",
+              "DOCUMENT",
+              "USER_INPUT",
+              "PREVIOUS_APPLICATION",
+              "SYSTEM_DERIVED",
+              "NONE"
+            ]
+          },
+          "sourceDetails": {
+            "type": "string",
+            "description": "Provenance evidence details (e.g. 'Aadhaar.pdf, page 1')."
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Confidence score from 0.0 to 1.0 (displayed as e.g. 98%)."
+          },
+          "validation": {
+            "type": "string",
+            "description": "Validation result description or status (e.g. 'Verified', 'Valid', 'Missing Required Field')."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "VERIFIED",
+              "UNVERIFIED",
+              "CONFIRMATION_REQUIRED",
+              "MISSING",
+              "CONFLICT",
+              "OPTIONAL_EMPTY"
+            ]
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "isOptional": {
+            "type": "boolean"
+          },
+          "isMissing": {
+            "type": "boolean"
+          },
+          "needsConfirmation": {
+            "type": "boolean"
+          },
+          "conflict": {
+            "type": ["object", "null"],
+            "properties": {
+              "conflictId": { "type": "string" },
+              "existingValue": {
+                "type": "object",
+                "properties": {
+                  "value": {},
+                  "source": { "type": "string" },
+                  "evidence": { "type": "string" },
+                  "confidence": { "type": "number" }
+                },
+                "required": ["value", "source"]
+              },
+              "conflictingValue": {
+                "type": "object",
+                "properties": {
+                  "value": {},
+                  "source": { "type": "string" },
+                  "evidence": { "type": "string" },
+                  "confidence": { "type": "number" }
+                },
+                "required": ["value", "source"]
+              },
+              "status": {
+                "type": "string",
+                "enum": ["UNRESOLVED", "RESOLVED"]
+              },
+              "resolvedValue": {}
+            }
+          }
+        },
+        "required": [
+          "fieldKey",
+          "label",
+          "source",
+          "confidence",
+          "validation",
+          "status",
+          "isRequired"
+        ]
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "totalFields": { "type": "integer" },
+        "verifiedFields": { "type": "integer" },
+        "missingRequired": { "type": "integer" },
+        "missingOptional": { "type": "integer" },
+        "conflictsCount": { "type": "integer" },
+        "needsConfirmationCount": { "type": "integer" },
+        "canConfirm": { "type": "boolean" }
+      },
+      "required": [
+        "totalFields",
+        "verifiedFields",
+        "missingRequired",
+        "conflictsCount",
+        "canConfirm"
+      ]
+    },
+    "confirmation": {
+      "type": ["object", "null"],
+      "properties": {
+        "confirmationId": { "type": "string" },
+        "token": { "type": "string" },
+        "fieldStateHash": { "type": "string" },
+        "confirmedAt": { "type": "string" },
+        "confirmedBy": { "type": "string" },
+        "isLocked": { "type": "boolean" },
+        "status": {
+          "type": "string",
+          "enum": ["ISSUED", "INVALIDATED", "USED"]
+        }
+      }
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "reviewId",
+    "applicationId",
+    "userId",
+    "status",
+    "fields",
+    "summary"
+  ],
+  "additionalProperties": true
+}

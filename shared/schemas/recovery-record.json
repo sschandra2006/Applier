@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/recovery-record.json",
+  "title": "RecoveryRecord",
+  "description": "Deterministic and AI-assisted browser execution recovery record adhering to Applier 2.0 Phase 15 specification.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0",
+      "default": "2.0.0"
+    },
+    "recoveryId": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "originalAction": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "target": { "type": "string" },
+        "value": {},
+        "url": { "type": "string" },
+        "stepIndex": { "type": "integer" }
+      },
+      "required": ["type"]
+    },
+    "failure": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "selector failure",
+            "element missing",
+            "timeout",
+            "navigation failure",
+            "session expired",
+            "unexpected modal",
+            "validation failure",
+            "upload rejection",
+            "page changed",
+            "browser crash"
+          ]
+        },
+        "message": { "type": "string" },
+        "evidence": { "type": "string" }
+      },
+      "required": ["type", "message"]
+    },
+    "strategy": {
+      "type": "string",
+      "enum": [
+        "RETRY_SAME_ACTION",
+        "RE_OBSERVE",
+        "RE_RESOLVE_LOCATOR",
+        "ADAPTIVE_REASONING",
+        "REFRESH_SESSION",
+        "HUMAN_CHECKPOINT"
+      ]
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "FAILED",
+        "ESCALATED",
+        "CHECKPOINT_CREATED"
+      ]
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0
+    },
+    "dataModified": {
+      "type": "boolean",
+      "const": false,
+      "default": false,
+      "description": "Strict safety invariant: recovery must NEVER modify user data silently."
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "recoveryId",
+    "originalAction",
+    "failure",
+    "strategy",
+    "result",
+    "attempt",
+    "duration"
+  ],
+  "additionalProperties": true
+}

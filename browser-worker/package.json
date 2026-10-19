@@ -1,0 +1,26 @@
+{
+  "name": "applier-browser-worker",
+  "version": "2.0.0",
+  "description": "Applier 2.0 Distributed Playwright Browser Worker",
+  "main": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./browser": "./browser/index.js",
+    "./observation": "./observation/index.js",
+    "./semantic": "./semantic/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "bullmq": "^5.41.0",
+    "dotenv": "^17.4.2",
+    "ioredis": "^5.4.1",
+    "mongoose": "^9.7.4",
+    "playwright": "^1.61.1",
+    "zod": "^4.4.3"
+  }
+}

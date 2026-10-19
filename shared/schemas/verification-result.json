@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/verification-result.json",
+  "title": "VerificationResult",
+  "description": "Validation result for field formats, constraints, or eligibility rules.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "verificationId": {
+      "type": "string"
+    },
+    "fieldKey": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PASSED", "FAILED", "FLAGGED", "PENDING"]
+    },
+    "ruleName": {
+      "type": "string"
+    },
+    "errorMessage": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["ERROR", "WARNING", "INFO"],
+      "default": "ERROR"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "default": 1.0
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "verificationId", "fieldKey", "status"],
+  "additionalProperties": true
+}

@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "2.0.0",
+  "observationId": "obs_fixture_valid_001",
+  "url": "https://scholarships.gov.in/fresh-application",
+  "title": "Fresh Application Portal",
+  "timestamp": "2026-10-03T11:30:00.000Z",
+  "page": {
+    "url": "https://scholarships.gov.in/fresh-application",
+    "title": "Fresh Application Portal",
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "readyState": "complete",
+    "visibleTextSummary": "Fresh Application Portal - Enter Personal Details"
+  },
+  "elements": [
+    {
+      "elementId": "elem_1",
+      "tag": "input",
+      "role": "textbox",
+      "type": "text",
+      "label": "Full Name",
+      "text": "",
+      "placeholder": "Enter official applicant name",
+      "name": "applicant_name",
+      "id": "applicantNameInput",
+      "value": "Alice Sharma",
+      "required": true,
+      "disabled": false,
+      "visible": true,
+      "options": [],
+      "attributes": {
+        "autocomplete": "name",
+        "data-testid": "name-input"
+      },
+      "framePath": "root"
+    },
+    {
+      "elementId": "elem_2",
+      "tag": "select",
+      "role": "combobox",
+      "type": "select",
+      "label": "Category",
+      "text": "General",
+      "placeholder": "",
+      "name": "category",
+      "id": "categorySelect",
+      "value": "GEN",
+      "required": true,
+      "disabled": false,
+      "visible": true,
+      "options": [
+        { "text": "General", "value": "GEN", "selected": true },
+        { "text": "OBC", "value": "OBC", "selected": false },
+        { "text": "SC/ST", "value": "SC_ST", "selected": false }
+      ],
+      "attributes": {},
+      "framePath": "root"
+    },
+    {
+      "elementId": "elem_3",
+      "tag": "button",
+      "role": "button",
+      "type": "submit",
+      "label": "Save and Continue",
+      "text": "Save and Continue",
+      "placeholder": "",
+      "name": "btn_submit",
+      "id": "submitBtn",
+      "value": "",
+      "required": false,
+      "disabled": false,
+      "visible": true,
+      "options": [],
+      "attributes": {},
+      "framePath": "root"
+    }
+  ],
+  "forms": [
+    {
+      "formId": "form_1",
+      "id": "applicantForm",
+      "name": "applicantForm",
+      "action": "/api/v1/apply",
+      "method": "POST",
+      "elementIds": ["elem_1", "elem_2", "elem_3"],
+      "submitButtonId": "elem_3"
+    }
+  ],
+  "actions": [
+    {
+      "actionId": "act_1",
+      "type": "FILL",
+      "elementId": "elem_1",
+      "label": "Full Name",
+      "framePath": "root"
+    },
+    {
+      "actionId": "act_2",
+      "type": "SELECT",
+      "elementId": "elem_2",
+      "label": "Category",
+      "framePath": "root"
+    },
+    {
+      "actionId": "act_3",
+      "type": "CLICK",
+      "elementId": "elem_3",
+      "label": "Save and Continue",
+      "framePath": "root"
+    }
+  ],
+  "frames": [
+    {
+      "framePath": "root",
+      "name": "",
+      "url": "https://scholarships.gov.in/fresh-application"
+    }
+  ],
+  "metadata": {
+    "observationDepth": "interactive",
+    "collectedAt": "2026-10-03T11:30:00.000Z",
+    "durationMs": 45.2,
+    "elementCount": 3,
+    "formCount": 1,
+    "actionCount": 3,
+    "visibleTextLength": 49
+  },
+  "screenshotReference": null
+}

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/model-routing-decision.json",
+  "title": "ModelRoutingDecision",
+  "description": "Telemetry and routing contract for Multi-Model AI Routing (Phase 22).",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "decisionId": {
+      "type": "string",
+      "pattern": "^mrd_[a-zA-Z0-9_.-]+$"
+    },
+    "taskType": {
+      "type": "string",
+      "enum": [
+        "CLASSIFICATION",
+        "NORMALIZATION",
+        "SIMPLE_EXTRACTION",
+        "DOCUMENT_ANALYSIS",
+        "SCREENSHOT_ANALYSIS",
+        "VISUAL_UI",
+        "AMBIGUITY_RESOLUTION",
+        "COMPLEX_WORKFLOW",
+        "RECOVERY",
+        "CONFLICTING_EVIDENCE",
+        "DETERMINISTIC_EXTRACTION"
+      ]
+    },
+    "route": {
+      "type": "string",
+      "enum": ["DETERMINISTIC", "FAST", "VISION", "STRONG"]
+    },
+    "selectedModel": {
+      "type": "string"
+    },
+    "tokens": {
+      "type": "object",
+      "properties": {
+        "inputTokens": { "type": "integer", "minimum": 0 },
+        "outputTokens": { "type": "integer", "minimum": 0 },
+        "totalTokens": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["inputTokens", "outputTokens", "totalTokens"]
+    },
+    "latencyMs": {
+      "type": "number",
+      "minimum": 0
+    },
+    "costUsd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "success": {
+      "type": "boolean"
+    },
+    "fallbackHistory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "attempt": { "type": "integer", "minimum": 1 },
+          "model": { "type": "string" },
+          "error": { "type": ["string", "null"] },
+          "status": {
+            "type": "string",
+            "enum": ["RETRY", "ESCALATED", "HUMAN_CHECKPOINT", "SUCCESS"]
+          }
+        },
+        "required": ["attempt", "model", "status"]
+      }
+    },
+    "humanCheckpointRequired": {
+      "type": "boolean"
+    },
+    "humanCheckpointReason": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "decisionId",
+    "taskType",
+    "route",
+    "selectedModel",
+    "tokens",
+    "latencyMs",
+    "costUsd",
+    "confidence",
+    "success",
+    "humanCheckpointRequired"
+  ]
+}

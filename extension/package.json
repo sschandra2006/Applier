@@ -1,0 +1,14 @@
+{
+  "name": "applier-extension",
+  "version": "3.0.0",
+  "description": "Applier Chrome Extension Manifest V3 — Resume Tailoring & Form Autofill",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "npx -y esbuild src/content/index.js --bundle --outfile=src/content/content.bundle.js --format=iife",
+    "watch": "npx -y esbuild src/content/index.js --bundle --outfile=src/content/content.bundle.js --format=iife --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

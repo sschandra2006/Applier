@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Staff Systems Architect at GlobalTech - Greenhouse Application</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 30px; color: #222; max-width: 850px; background: #fafafa; }
+    h1.app-title { font-size: 26px; margin-bottom: 4px; color: #111; }
+    .company-name { font-size: 15px; color: #555; margin-bottom: 20px; font-weight: 600; }
+    #content { background: #fff; padding: 20px; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 25px; line-height: 1.6; }
+    form { background: #fff; border: 1px solid #e2e8f0; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .field-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #334155; }
+    .help-text { font-size: 12px; color: #64748b; margin-top: 4px; }
+    input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+      width: 100%; max-width: 500px; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .radio-row { display: flex; gap: 20px; margin-top: 6px; }
+    .radio-label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; }
+    .step-indicator { display: flex; gap: 10px; margin-bottom: 20px; font-size: 13px; color: #64748b; }
+    .step-active { font-weight: bold; color: #2563eb; }
+    .submit-btn { background: #2563eb; color: #fff; padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .error-message { color: #dc2626; font-size: 12px; margin-top: 4px; display: none; }
+    .has-error input { border-color: #dc2626; }
+    .has-error .error-message { display: block; }
+  </style>
+</head>
+<body>
+  <div id="application-container">
+    <div class="company-name">GlobalTech Systems</div>
+    <h1 class="app-title">Staff Systems Architect</h1>
+    <div class="location">San Francisco, CA (Hybrid)</div>
+
+    <div id="content">
+      <h2>About the Role</h2>
+      <p>GlobalTech is hiring a Staff Systems Architect to lead our platform scaling. Requires deep expertise in distributed event systems, Kubernetes, and Go.</p>
+    </div>
+
+    <!-- Multi-Step Indicator -->
+    <div class="step-indicator" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="3">
+      <span class="step-active">Step 1 of 3: Candidate Information</span>
+      <span>• Step 2: Experience</span>
+      <span>• Step 3: Review</span>
+    </div>
+
+    <form id="application_form" action="/apply" method="POST" enctype="multipart/form-data" novalidate>
+      <h3>Personal & Contact Information</h3>
+
+      <!-- 1. Text Inputs -->
+      <div class="field-group">
+        <label for="first_name">First Name *</label>
+        <input type="text" id="first_name" name="first_name" placeholder="Legal first name" required>
+        <div class="help-text">As it appears on your passport or legal ID.</div>
+      </div>
+
+      <div class="field-group">
+        <label for="last_name">Last Name *</label>
+        <input type="text" id="last_name" name="last_name" placeholder="Legal last name" required>
+      </div>
+
+      <!-- 2. Email with Accessible Name & aria-describedby -->
+      <div class="field-group">
+        <label for="candidate_email" id="email_label">Email Address *</label>
+        <input type="email" id="candidate_email" name="email" aria-labelledby="email_label" aria-describedby="email_hint" required>
+        <div id="email_hint" class="help-text">We will send interview scheduling details to this address.</div>
+      </div>
+
+      <!-- 3. Phone (Will be pre-populated to test User Edit Preservation) -->
+      <div class="field-group">
+        <label for="phone_number">Mobile Phone *</label>
+        <input type="tel" id="phone_number" name="phone" value="+1-555-999-8888" required>
+        <div class="help-text">Include country code.</div>
+      </div>
+
+      <!-- 4. Profile Links -->
+      <div class="field-group">
+        <label for="linkedin_url">LinkedIn Profile</label>
+        <input type="text" id="linkedin_url" name="linkedin" placeholder="https://linkedin.com/in/yourprofile">
+      </div>
+
+      <div class="field-group">
+        <label for="portfolio_url">Personal Website or Portfolio</label>
+        <input type="text" id="portfolio_url" name="portfolio" placeholder="https://">
+      </div>
+
+      <!-- 5. Dropdown Selection: Work Authorization -->
+      <div class="field-group">
+        <label for="work_auth_dropdown">Work Authorization Status *</label>
+        <select id="work_auth_dropdown" name="work_authorization" required>
+          <option value="">-- Please Select --</option>
+          <option value="auth_us_citizen">Authorized to work in US without sponsorship</option>
+          <option value="visa_sponsorship_req">Will require visa sponsorship now or in the future</option>
+          <option value="other_status">Other work authorization status</option>
+        </select>
+      </div>
+
+      <!-- 6. Dropdown Selection: Highest Degree -->
+      <div class="field-group">
+        <label for="education_degree">Highest Level of Education *</label>
+        <select id="education_degree" name="degree" required>
+          <option value="">-- Select Degree --</option>
+          <option value="high_school">High School Diploma / GED</option>
+          <option value="bachelors">Bachelor's Degree</option>
+          <option value="masters">Master's Degree</option>
+          <option value="doctorate">Doctorate (Ph.D.)</option>
+        </select>
+      </div>
+
+      <!-- 7. Radio Button Group: Visa Sponsorship -->
+      <div class="field-group" id="radio_sponsorship_group">
+        <label>Will you now or in the future require sponsorship for employment visa status? *</label>
+        <div class="radio-row">
+          <label class="radio-label">
+            <input type="radio" name="sponsorship_req" value="Yes" required> Yes
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="sponsorship_req" value="No" required> No
+          </label>
+        </div>
+      </div>
+
+      <!-- 8. Ambiguous / Non-standard Question (Must be quarantined) -->
+      <div class="field-group">
+        <label for="internal_routing_code">Internal Organizational Routing Code *</label>
+        <input type="text" id="internal_routing_code" name="routing_code" placeholder="XYZ-999" required>
+        <div class="help-text">Internal code if referred by an employee.</div>
+      </div>
+
+      <!-- 9. Sensitive Question: Desired Salary (Must REQUIRE_USER_CONFIRMATION) -->
+      <div class="field-group">
+        <label for="desired_salary_input">Expected Annual Base Salary ($)</label>
+        <input type="text" id="desired_salary_input" name="salary" placeholder="e.g. 180000">
+      </div>
+
+      <!-- 10. Unsupported / Exotic Question -->
+      <div class="field-group">
+        <label for="nebula_question">What is your favorite astronomical phenomenon?</label>
+        <input type="text" id="nebula_question" name="fav_nebula" placeholder="Optional fun question">
+      </div>
+
+      <!-- 11. Custom Validation Error Field -->
+      <div class="field-group" id="zipcode_group">
+        <label for="postal_code">Postal Code *</label>
+        <input type="text" id="postal_code" name="postal_code" pattern="[0-9]{5}" maxlength="5" required>
+        <div class="error-message" id="zip_error">Please enter a valid 5-digit US ZIP code.</div>
+      </div>
+
+      <!-- 12. Checkbox -->
+      <div class="field-group">
+        <label class="radio-label">
+          <input type="checkbox" id="certify_truth" name="certified" required>
+          I certify that all information provided is accurate and true. *
+        </label>
+      </div>
+
+      <!-- 13. File Upload (Resume) -->
+      <div class="field-group" id="resume_upload_container">
+        <label for="resume_file">Resume / CV (PDF only) *</label>
+        <input type="file" id="resume_file" name="resume" accept=".pdf" required>
+        <div class="error-message" id="resume_error">File upload failed: File exceeds limit.</div>
+      </div>
+
+      <!-- Dynamic Container for injected fields -->
+      <div id="dynamic_fields_container"></div>
+
+      <!-- 14. CAPTCHA Security Checkpoint (Must NEVER be bypassed) -->
+      <div class="field-group" id="captcha_checkpoint_container">
+        <div class="g-recaptcha" data-sitekey="6LeIxacZAAAAAF">
+          <div style="width: 304px; height: 78px; border: 1px solid #d3d3d3; background: #f9f9f9; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #555;">
+            [Google reCAPTCHA Verification Checkpoint]
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation & Submit Controls -->
+      <div class="field-group" style="margin-top: 30px;">
+        <button type="button" class="submit-btn" id="btn_next_step">Next Step &rarr;</button>
+        <button type="submit" class="submit-btn" id="btn_submit_app" style="display:none;">Submit Application</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

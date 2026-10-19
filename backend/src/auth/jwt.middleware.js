@@ -5,13 +5,16 @@ import { User } from '../users/user.model.js';
 export const requireJwtAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, error: 'Unauthorized: No token provided' });
+    let token = null;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split('Bearer ')[1].trim();
+    } else if (req.query?.token) {
+      token = String(req.query.token).trim();
     }
 
-    const token = authHeader.split('Bearer ')[1].trim();
     if (!token || token === 'undefined' || token === 'null') {
-      return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or missing token' });
+      return res.status(401).json({ success: false, error: 'Unauthorized: No token provided' });
     }
 
     const decoded = jwt.verify(token, config.jwtSecret);

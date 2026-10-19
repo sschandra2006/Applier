@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/universal-application-session.json",
+  "title": "UniversalApplicationSession",
+  "description": "Session contract for universal unknown and known website application workflow executions.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "sessionId": {
+      "type": "string",
+      "pattern": "^uas_[a-zA-Z0-9_.-]+$"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "targetUrl": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "isKnownWebsite": {
+      "type": "boolean"
+    },
+    "fingerprintId": {
+      "type": ["string", "null"]
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "INIT",
+        "EXPLORATION",
+        "ENTRY_DETECTED",
+        "AUTH_CHECKED",
+        "OBSERVATION",
+        "SEMANTIC_UNDERSTANDING",
+        "FIELD_MAPPING",
+        "DOCUMENT_EVIDENCE",
+        "INTERVIEW",
+        "VALIDATION",
+        "USER_REVIEW",
+        "CONFIRMED",
+        "EXECUTING",
+        "VERIFYING",
+        "RECOVERING",
+        "SUBMITTED",
+        "SUBMISSION_VERIFIED",
+        "LEARNED",
+        "FAILED",
+        "PAUSED_USER_INPUT"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ACTIVE", "PAUSED_USER_INPUT", "PAUSED_OTP", "COMPLETED", "FAILED"]
+    },
+    "temporaryWorkflow": {
+      "type": ["object", "null"]
+    },
+    "mappedFields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fieldId": { "type": "string" },
+          "semanticTarget": { "type": "string" },
+          "value": { "type": ["string", "number", "boolean", "null"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "source": { "type": "string" },
+          "verified": { "type": "boolean" }
+        },
+        "required": ["fieldId", "semanticTarget", "confidence"],
+        "additionalProperties": true
+      }
+    },
+    "missingFields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "requiresUserInput": {
+      "type": "boolean"
+    },
+    "confirmationToken": {
+      "type": ["string", "null"]
+    },
+    "submissionResult": {
+      "type": ["object", "null"]
+    },
+    "learnedFingerprint": {
+      "type": ["object", "null"]
+    },
+    "error": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "sessionId",
+    "userId",
+    "targetUrl",
+    "domain",
+    "isKnownWebsite",
+    "phase",
+    "status",
+    "mappedFields",
+    "confidence",
+    "requiresUserInput"
+  ],
+  "additionalProperties": true
+}

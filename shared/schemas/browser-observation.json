@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/browser-observation.json",
+  "title": "BrowserObservation",
+  "description": "Structured observation snapshot captured during Playwright crawling or page analysis.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "observationId": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "title": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "page": {
+      "type": "object",
+      "properties": {
+        "url": { "type": "string" },
+        "title": { "type": "string" },
+        "viewport": {
+          "type": "object",
+          "properties": {
+            "width": { "type": "integer" },
+            "height": { "type": "integer" }
+          }
+        },
+        "readyState": { "type": "string" },
+        "visibleTextSummary": { "type": "string" }
+      }
+    },
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "elementId": { "type": "string" },
+          "tag": { "type": "string" },
+          "role": { "type": "string" },
+          "type": { "type": "string" },
+          "label": { "type": "string" },
+          "text": { "type": "string" },
+          "placeholder": { "type": "string" },
+          "name": { "type": "string" },
+          "id": { "type": "string" },
+          "value": { "type": "string" },
+          "required": { "type": "boolean" },
+          "disabled": { "type": "boolean" },
+          "visible": { "type": "boolean" },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string" },
+                "value": { "type": "string" },
+                "selected": { "type": "boolean" }
+              }
+            }
+          },
+          "attributes": { "type": "object" },
+          "framePath": {}
+        },
+        "required": ["elementId", "tag"]
+      }
+    },
+    "forms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "formId": { "type": "string" },
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "action": { "type": "string" },
+          "method": { "type": "string" },
+          "elementIds": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "submitButtonId": { "type": "string" }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "actionId": { "type": "string" },
+          "type": { "type": "string" },
+          "elementId": { "type": "string" },
+          "label": { "type": "string" },
+          "framePath": {}
+        }
+      }
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "framePath": {},
+          "name": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "observationDepth": { "type": "string" },
+        "collectedAt": { "type": "string" },
+        "durationMs": { "type": "number" },
+        "elementCount": { "type": "integer" },
+        "formCount": { "type": "integer" },
+        "actionCount": { "type": "integer" },
+        "visibleTextLength": { "type": "integer" }
+      }
+    },
+    "screenshotReference": {
+      "type": ["string", "null"]
+    },
+    "domSummary": {
+      "type": "object",
+      "properties": {
+        "formCount": { "type": "integer" },
+        "inputCount": { "type": "integer" },
+        "hasFrames": { "type": "boolean" },
+        "hasCaptcha": { "type": "boolean" },
+        "pagesScanned": { "type": "integer" }
+      }
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "$ref": "https://applier.ai/schemas/website-field.json"
+      }
+    },
+    "navigation": {
+      "type": "object",
+      "properties": {
+        "submit_button": { "type": "string" },
+        "next_button": { "type": "string" },
+        "prev_button": { "type": "string" }
+      }
+    },
+    "screenshotBase64": {
+      "type": ["string", "null"]
+    },
+    "statusCode": {
+      "type": "integer"
+    }
+  },
+  "required": ["schemaVersion", "observationId", "url"],
+  "additionalProperties": true
+}

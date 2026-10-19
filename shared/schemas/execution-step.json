@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/execution-step.json",
+  "title": "ExecutionStep",
+  "description": "An atomic Playwright automation instruction in Applier 2.0.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "stepIndex": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "type": {
+      "type": "string",
+      "enum": ["navigate", "fill", "click", "select", "upload", "pause", "wait", "screenshot"]
+    },
+    "selector": {
+      "type": ["string", "null"]
+    },
+    "field": {
+      "type": ["string", "null"]
+    },
+    "value": {
+      "type": ["string", "null"]
+    },
+    "url": {
+      "type": ["string", "null"]
+    },
+    "description": {
+      "type": ["string", "null"]
+    },
+    "waitAfterMs": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 500
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "pauseReason": {
+      "type": ["string", "null"],
+      "enum": ["OTP", "CAPTCHA", "PAYMENT", "MANUAL_REVIEW", null]
+    },
+    "captchaSelector": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": ["type"],
+  "additionalProperties": true
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applier</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <div class="brand">
+        <span class="brand-icon">⚡</span>
+        <span class="brand-title">Applier</span>
+      </div>
+      <span id="popup-auth-badge" class="badge">Checking...</span>
+    </header>
+
+    <main class="popup-body">
+      <!-- Status Card -->
+      <div id="status-card" class="card">
+        <div id="job-info-block" class="hidden">
+          <span id="ats-badge" class="badge badge-portal">Greenhouse</span>
+          <h3 id="job-title" class="job-title">Senior Platform Engineer</h3>
+          <p id="job-company" class="job-company">TechCorp</p>
+          <button id="btn-open-sidepanel" class="btn btn-primary btn-block">
+            Apply with Applier
+          </button>
+        </div>
+
+        <div id="no-job-block" class="empty-block">
+          <span class="empty-icon">📄</span>
+          <h4>No Application Open</h4>
+          <p>Navigate to any supported job application page (Greenhouse, Lever, Workday, etc.) to use Applier.</p>
+          <button id="btn-sidepanel-fallback" class="btn btn-secondary btn-block">
+            Open Side Panel
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="popup-footer">
+      <span>AI-Powered Verified Resume Generation</span>
+    </footer>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

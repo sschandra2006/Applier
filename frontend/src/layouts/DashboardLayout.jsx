@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, FolderClosed, Settings as SettingsIcon, LogOut, ChevronRight, Bell } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, FolderClosed, Settings as SettingsIcon, LogOut, ChevronRight, Bell, UserCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { signOut } from 'firebase/auth';
@@ -28,6 +28,7 @@ export default function DashboardLayout() {
 
   const navItems = [
     { path: '/dashboard', label: 'My Applications', icon: LayoutDashboard },
+    { path: '/dashboard/profile', label: 'Professional Profile', icon: UserCheck },
     { path: '/dashboard/new', label: 'New Application', icon: PlusCircle },
     { path: '/dashboard/documents', label: 'Document Vault', icon: FolderClosed },
     { path: '/dashboard/settings', label: 'Settings', icon: SettingsIcon },

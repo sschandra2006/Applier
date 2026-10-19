@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/interview-state.json",
+  "title": "InterviewState",
+  "description": "Session state for conversational Q&A and field collection machine.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "stateId": {
+      "type": "string"
+    },
+    "userId": {
+      "type": "string"
+    },
+    "workflowId": {
+      "type": "string"
+    },
+    "applicationId": {
+      "type": ["string", "null"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["NOT_STARTED", "IN_PROGRESS", "PAUSED", "COMPLETED"],
+      "default": "NOT_STARTED"
+    },
+    "answers": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "pendingFields": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "completedFields": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "currentField": {
+      "type": ["string", "null"]
+    },
+    "currentStep": {
+      "type": "integer",
+      "default": 1
+    },
+    "confidenceScores": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    },
+    "validationErrors": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "lastQuestionId": {
+      "type": ["string", "null"]
+    },
+    "updatedAt": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "stateId", "userId", "workflowId", "status", "answers"],
+  "additionalProperties": true
+}

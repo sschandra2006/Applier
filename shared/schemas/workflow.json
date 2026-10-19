@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applier.ai/schemas/workflow.json",
+  "title": "Workflow",
+  "description": "Canonical multi-page application workflow structure synthesized from target portal.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "workflowId": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "targetUrl": {
+      "type": "string"
+    },
+    "urlHash": {
+      "type": "string"
+    },
+    "landingScreenshot": {
+      "type": ["string", "null"]
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string" },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "type": { "type": "string" },
+                "label": { "type": "string" },
+                "selector": { "type": "string" },
+                "required": { "type": "boolean", "default": false },
+                "validation": { "type": "object" },
+                "options": { "type": ["array", "object"] },
+                "metadata": { "type": "object" },
+                "extensions": { "type": "object" }
+              },
+              "required": ["id"]
+            }
+          }
+        },
+        "required": ["id", "title", "steps"]
+      }
+    },
+    "applicationOptions": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "createdAt": {
+      "type": "string"
+    }
+  },
+  "required": ["schemaVersion", "name", "targetUrl", "pages"],
+  "additionalProperties": true
+}

@@ -5,6 +5,8 @@ import { Message } from '../chat/message.model.js';
 import { Document } from '../documents/document.model.js';
 import { internalApi } from '../config/axios.js';
 import { config } from '../config/env.js';
+import { ApplicantKnowledgeGraph, defaultKnowledgeGraphService } from '../knowledge/index.js';
+import { Profile } from '../users/profile.model.js';
 
 const PYTHON_API_URL = config.pythonApiUrl;
 
@@ -40,13 +42,79 @@ export const startInterview = async (userId, workflowId) => {
       globalStepIdx++;
     });
   });
-  
+
+  // Phase 6: Consult Applicant Knowledge Graph before initiating questions
+  let graph = null;
+  try {
+    const graphDoc = await ApplicantKnowledgeGraph.findOne({ userId });
+    graph = graphDoc ? (graphDoc.toObject ? graphDoc.toObject() : graphDoc) : null;
+  } catch (_) {}
+
+  if (!graph) {
+    graph = defaultKnowledgeGraphService.createEmptyGraph({ userId });
+  }
+
+  // Safe migration: if graph is unpopulated, import from existing Profile
+  if (!graph.metadata?.totalFields || graph.metadata.totalFields === 0) {
+    try {
+      const profile = await Profile.findOne({ userId });
+      if (profile) {
+        defaultKnowledgeGraphService.importProfile(graph, profile);
+      }
+    } catch (_) {}
+  }
+
+  // Phase 14: Document-First Hierarchy Ingestion
+  // Check: (1) Applicant Graph, (2) Document Evidence, (3) Previous Application Data
+
+  // Step 2: Document Evidence ingestion from vault
+  try {
+    const userDocs = await Document.find({ userId });
+    if (userDocs && userDocs.length > 0) {
+      defaultKnowledgeGraphService.importDocumentEvidence(graph, userDocs);
+    }
+  } catch (_) {}
+
+  // Step 3: Previous Applications ingestion from completed historical applications
+  try {
+    const priorApps = await InterviewState.find({ userId, status: 'COMPLETED' }).lean();
+    if (priorApps && priorApps.length > 0) {
+      defaultKnowledgeGraphService.importPreviousApplications(graph, priorApps);
+    }
+  } catch (_) {}
+
+  // Persist updated graph with document evidence and previous applications
+  try {
+    await ApplicantKnowledgeGraph.updateOne({ userId }, graph, { upsert: true });
+  } catch (_) {}
+
+  // Partition pending fields against Knowledge Graph:
+  // - verified value -> do not ask (skip!)
+  // - known but uncertain -> ask confirmation
+  // - conflicting -> show conflict
+  // - unknown -> ask user
+  const {
+    skippedFields,
+    remainingPendingFields
+  } = defaultKnowledgeGraphService.partitionInterviewFields(graph, pendingFields);
+
+  const initialAnswers = new Map();
+  const completedFields = [];
+  for (const [fId, info] of Object.entries(skippedFields)) {
+    initialAnswers.set(fId, info.value);
+    completedFields.push(fId);
+  }
+
+  const isCompleteAlready = remainingPendingFields.length === 0;
+
   const state = await InterviewState.create({
     userId,
     workflowId,
-    pendingFields,
-    currentField: pendingFields[0] || null,
-    status: 'IN_PROGRESS'
+    answers: initialAnswers,
+    completedFields,
+    pendingFields: remainingPendingFields,
+    currentField: remainingPendingFields[0] || null,
+    status: isCompleteAlready ? 'COMPLETED' : 'IN_PROGRESS'
   });
   
   // Create Conversation for history
@@ -141,6 +209,17 @@ export const processUserMessage = async (conversationId, userId, content) => {
   const appOptions = state.workflowId?.schemaDefinition?.metadata?.applicationOptions || [];
   const selectedOption = safeAnswers.selectedOption || safeAnswers.application_option || safeAnswers.option || null;
 
+  // Query Applicant Knowledge Graph context
+  let graph = null;
+  try {
+    const graphDoc = await ApplicantKnowledgeGraph.findOne({ userId });
+    graph = graphDoc ? (graphDoc.toObject ? graphDoc.toObject() : graphDoc) : null;
+  } catch (_) {}
+
+  const kgPartition = graph
+    ? defaultKnowledgeGraphService.partitionInterviewFields(graph, state.pendingFields || [])
+    : { confirmationFields: {}, conflictFields: {} };
+
   const payload = {
     state: {
       answers: safeAnswers,
@@ -151,7 +230,9 @@ export const processUserMessage = async (conversationId, userId, content) => {
       fieldDetails: fieldDetails,
       applicationOptions: appOptions,
       selectedOption: selectedOption,
-      availableDocuments: vaultContext
+      availableDocuments: vaultContext,
+      confirmationFields: kgPartition.confirmationFields,
+      conflictFields: kgPartition.conflictFields
     },
     lastUserMessage: content
   };
@@ -171,13 +252,45 @@ export const processUserMessage = async (conversationId, userId, content) => {
   
   // 4. Update Node State with Fuzzy Field Matching & Fallback
   const normalizeKey = k => (k || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const isAffirmative = text => /^(yes|yeah|yep|correct|confirm|confirmed|true|right|sure|exact|accurate|fine|ok|okay|looks good|sounds good|yes please|that is correct|thats correct)/i.test(String(text).trim());
   let extractedCount = 0;
 
   if (aiOutput && aiOutput.extracted_data && !aiOutput.requiresClarification) {
-    for (const [key, value] of Object.entries(aiOutput.extracted_data)) {
-      if (!value) continue;
+    for (const [key, rawVal] of Object.entries(aiOutput.extracted_data)) {
+      if (!rawVal) continue;
       const normKey = normalizeKey(key);
       const matchedField = state.pendingFields.find(f => normalizeKey(f) === normKey) || key;
+      let value = rawVal;
+
+      // Handle confirmation field affirmation
+      if (kgPartition.confirmationFields[matchedField] && (isAffirmative(value) || isAffirmative(content))) {
+        value = kgPartition.confirmationFields[matchedField].value;
+      }
+
+      // Handle conflict resolution
+      if (kgPartition.conflictFields[matchedField]) {
+        const conf = kgPartition.conflictFields[matchedField];
+        const lowerVal = String(value).toLowerCase();
+        const lowerContent = String(content).toLowerCase();
+        if (conf.existingValue && (lowerVal === String(conf.existingValue).toLowerCase() || lowerContent.includes(String(conf.existingValue).toLowerCase()) || lowerContent.includes('first') || lowerContent.includes('record a'))) {
+          value = conf.existingValue;
+        } else if (conf.conflictingValue && (lowerVal === String(conf.conflictingValue).toLowerCase() || lowerContent.includes(String(conf.conflictingValue).toLowerCase()) || lowerContent.includes('second') || lowerContent.includes('record b'))) {
+          value = conf.conflictingValue;
+        }
+        if (graph) {
+          const path = defaultKnowledgeGraphService.resolvePath(matchedField) || conf.path;
+          if (path) {
+            defaultKnowledgeGraphService.resolveFieldConflict(graph, {
+              path,
+              resolvedValue: value,
+              resolvedSource: 'USER_INPUT'
+            });
+            try {
+              await ApplicantKnowledgeGraph.updateOne({ userId }, graph, { upsert: true });
+            } catch (_) {}
+          }
+        }
+      }
 
       if (state.answers && typeof state.answers.set === 'function') {
         state.answers.set(matchedField, value);
@@ -190,8 +303,26 @@ export const processUserMessage = async (conversationId, userId, content) => {
       }
       state.pendingFields = state.pendingFields.filter(f => f !== matchedField && normalizeKey(f) !== normKey);
       if (state.confidenceScores && typeof state.confidenceScores.set === 'function') {
-        state.confidenceScores.set(matchedField, aiOutput.confidence || 0.85);
+        state.confidenceScores.set(matchedField, 1.0);
       }
+
+      // Phase 6 / Phase 14: Ingest user answer into Applicant Knowledge Graph
+      if (graph) {
+        const path = defaultKnowledgeGraphService.resolvePath(matchedField);
+        if (path) {
+          defaultKnowledgeGraphService.ingestValue(graph, {
+            path,
+            value,
+            source: 'USER_INPUT',
+            confidence: 1.0,
+            evidence: 'Confirmed by applicant during conversational interview'
+          });
+          try {
+            await ApplicantKnowledgeGraph.updateOne({ userId }, graph, { upsert: true });
+          } catch (_) {}
+        }
+      }
+      extractedCount++;
     }
   }
 
@@ -200,7 +331,37 @@ export const processUserMessage = async (conversationId, userId, content) => {
     const isGreeting = /^(hi|hello|hey|start|scan and apply)/i.test(content.trim());
     if (!isGreeting) {
       const activeField = state.currentField;
-      const val = content.trim();
+      let val = content.trim();
+
+      // Check if activeField is a confirmation field and user affirmed
+      if (kgPartition.confirmationFields[activeField] && isAffirmative(val)) {
+        val = kgPartition.confirmationFields[activeField].value;
+      }
+
+      // Check if activeField is a conflict field
+      if (kgPartition.conflictFields[activeField]) {
+        const conf = kgPartition.conflictFields[activeField];
+        const lowerContent = val.toLowerCase();
+        if (conf.existingValue && (lowerContent === String(conf.existingValue).toLowerCase() || lowerContent.includes(String(conf.existingValue).toLowerCase()) || lowerContent.includes('first') || lowerContent.includes('record a'))) {
+          val = conf.existingValue;
+        } else if (conf.conflictingValue && (lowerContent === String(conf.conflictingValue).toLowerCase() || lowerContent.includes(String(conf.conflictingValue).toLowerCase()) || lowerContent.includes('second') || lowerContent.includes('record b'))) {
+          val = conf.conflictingValue;
+        }
+        if (graph) {
+          const path = defaultKnowledgeGraphService.resolvePath(activeField) || conf.path;
+          if (path) {
+            defaultKnowledgeGraphService.resolveFieldConflict(graph, {
+              path,
+              resolvedValue: val,
+              resolvedSource: 'USER_INPUT'
+            });
+            try {
+              await ApplicantKnowledgeGraph.updateOne({ userId }, graph, { upsert: true });
+            } catch (_) {}
+          }
+        }
+      }
+
       if (!state.answers) state.answers = new Map();
       if (typeof state.answers.set === 'function') {
         state.answers.set(activeField, val);
@@ -214,6 +375,23 @@ export const processUserMessage = async (conversationId, userId, content) => {
       state.currentField = state.pendingFields[0] || null;
       extractedCount = 1;
       console.log(`[InterviewService] Active Field Fallback saved answer for ${activeField}: "${val}"`);
+
+      // Phase 6 / Phase 14: Ingest user answer into Applicant Knowledge Graph
+      if (graph) {
+        const path = defaultKnowledgeGraphService.resolvePath(activeField);
+        if (path) {
+          defaultKnowledgeGraphService.ingestValue(graph, {
+            path,
+            value: val,
+            source: 'USER_INPUT',
+            confidence: 1.0,
+            evidence: 'Confirmed by applicant during conversational interview'
+          });
+          try {
+            await ApplicantKnowledgeGraph.updateOne({ userId }, graph, { upsert: true });
+          } catch (_) {}
+        }
+      }
     }
   }
 
@@ -234,20 +412,32 @@ export const processUserMessage = async (conversationId, userId, content) => {
   // Update currentField to next pending after answers are recorded
   state.currentField = state.pendingFields[0] || null;
 
-  // Ensure AI response content is ALWAYS 100% in sync with state.currentField
-  if (state.status !== 'COMPLETED' && state.currentField && fieldDetails[state.currentField]) {
-    const targetInfo = fieldDetails[state.currentField];
+  // Ensure AI response content is ALWAYS 100% in sync with state.currentField and Knowledge Graph status
+  if (state.status !== 'COMPLETED' && state.currentField) {
+    const targetInfo = fieldDetails[state.currentField] || {
+      label: state.currentField.replace(/([A-Z])/g, ' $1').replace(/[^a-zA-Z0-9]+/g, ' ').trim().replace(/\b\w/g, l => l.toUpperCase())
+    };
+    const fieldStatus = graph ? defaultKnowledgeGraphService.getFieldStatus(graph, state.currentField) : { status: 'UNKNOWN' };
+
     let syncedQuestion = targetInfo.label || state.currentField;
-    const targetOptions = targetInfo.options;
-    if (targetOptions) {
-      let optionList = [];
-      if (Array.isArray(targetOptions)) {
-        optionList = targetOptions.map(o => (typeof o === 'object' ? (o.label || o.text || o.value) : o)).filter(l => l && !String(l).includes('Please Select') && l !== 'none');
-      } else if (typeof targetOptions === 'object') {
-        optionList = Object.values(targetOptions).filter(l => l && !String(l).includes('Please Select') && l !== 'none');
-      }
-      if (optionList.length > 0) {
-        syncedQuestion += ` (Choices: ${optionList.slice(0, 10).join(', ')})`;
+
+    if (fieldStatus.status === 'CONFLICT') {
+      const conf = fieldStatus.conflict;
+      syncedQuestion = `⚠️ We found conflicting records for ${targetInfo.label || state.currentField}: "${conf?.existingValue?.value || 'record A'}" vs "${conf?.conflictingValue?.value || 'record B'}". Which one is correct?`;
+    } else if (fieldStatus.status === 'CONFIRMATION_REQUIRED') {
+      syncedQuestion = `We found that your ${targetInfo.label || state.currentField} is "${fieldStatus.node?.value}". Could you please confirm if this is correct?`;
+    } else {
+      const targetOptions = targetInfo.options;
+      if (targetOptions) {
+        let optionList = [];
+        if (Array.isArray(targetOptions)) {
+          optionList = targetOptions.map(o => (typeof o === 'object' ? (o.label || o.text || o.value) : o)).filter(l => l && !String(l).includes('Please Select') && l !== 'none');
+        } else if (typeof targetOptions === 'object') {
+          optionList = Object.values(targetOptions).filter(l => l && !String(l).includes('Please Select') && l !== 'none');
+        }
+        if (optionList.length > 0) {
+          syncedQuestion += ` (Choices: ${optionList.slice(0, 10).join(', ')})`;
+        }
       }
     }
     aiResponseContent = syncedQuestion;
@@ -309,4 +499,158 @@ export const processUserMessage = async (conversationId, userId, content) => {
   });
   
   return { state, reply: aiMessage };
+};
+
+/**
+ * Resumes an in-progress conversational interview session.
+ * Reconciles state against knowledge graph and provides the next question.
+ */
+export const resumeInterview = async (userId, interviewStateId) => {
+  const state = await InterviewState.findOne({ _id: interviewStateId, userId }).populate('workflowId');
+  if (!state) {
+    throw new Error('Interview state not found');
+  }
+
+  const conversation = await Conversation.findOne({
+    userId,
+    'metadata.interviewStateId': state._id
+  });
+
+  if (state.status === 'COMPLETED' || !state.pendingFields || state.pendingFields.length === 0) {
+    state.status = 'COMPLETED';
+    state.currentField = null;
+    await state.save();
+    return {
+      state,
+      conversation,
+      isCompleted: true,
+      currentQuestion: null,
+      message: 'Interview is already completed and ready for submission.'
+    };
+  }
+
+  // Fetch knowledge graph
+  let graph = null;
+  try {
+    const graphDoc = await ApplicantKnowledgeGraph.findOne({ userId });
+    graph = graphDoc ? (graphDoc.toObject ? graphDoc.toObject() : graphDoc) : null;
+  } catch (_) {}
+
+  // Re-evaluate pending fields against updated Knowledge Graph
+  if (graph) {
+    const repartition = defaultKnowledgeGraphService.partitionInterviewFields(graph, state.pendingFields);
+    for (const [fId, info] of Object.entries(repartition.skippedFields)) {
+      if (state.answers instanceof Map) {
+        state.answers.set(fId, info.value);
+      } else {
+        if (!state.answers) state.answers = new Map();
+        state.answers[fId] = info.value;
+      }
+      if (!state.completedFields.includes(fId)) {
+        state.completedFields.push(fId);
+      }
+    }
+    state.pendingFields = repartition.remainingPendingFields;
+  }
+
+  // If all pending fields were resolved
+  if (state.pendingFields.length === 0) {
+    state.status = 'COMPLETED';
+    state.currentField = null;
+    await state.save();
+    return {
+      state,
+      conversation,
+      isCompleted: true,
+      currentQuestion: null,
+      message: 'All details have been verified! Interview is complete.'
+    };
+  }
+
+  state.currentField = state.pendingFields[0];
+  await state.save();
+
+  // Extract field metadata from scanned site workflow definition
+  const fieldDetails = {};
+  if (state.workflowId?.schemaDefinition?.pages) {
+    let globalIdx = 0;
+    state.workflowId.schemaDefinition.pages.forEach(page => {
+      page.steps?.forEach(step => {
+        const stepId = step.id
+          || step.selector?.replace(/^#/, '').replace(/[^a-z0-9_]/gi, '_').replace(/_+/g, '_').replace(/^_|_$/g, '')
+          || step.label?.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+          || `field_${globalIdx + 1}`;
+        if (stepId) {
+          let rawL = step.label || stepId;
+          let cleanedL = String(rawL)
+            .replace(/#.*$/gi, '')
+            .replace(/\*.*$/gi, '')
+            .replace(/[\*#:]+$/g, '')
+            .trim();
+          if (!cleanedL || cleanedL.length < 2) {
+            cleanedL = stepId
+              .replace(/([A-Z])/g, ' $1')
+              .replace(/[^a-zA-Z0-9]+/g, ' ')
+              .trim()
+              .replace(/\b\w/g, l => l.toUpperCase());
+          }
+          fieldDetails[stepId] = {
+            label: cleanedL,
+            type: step.type || 'text',
+            required: step.required || false,
+            options: step.options
+          };
+        }
+        globalIdx++;
+      });
+    });
+  }
+
+  const targetInfo = fieldDetails[state.currentField] || {
+    label: state.currentField.replace(/([A-Z])/g, ' $1').replace(/[^a-zA-Z0-9]+/g, ' ').trim().replace(/\b\w/g, l => l.toUpperCase())
+  };
+  const fieldStatus = graph ? defaultKnowledgeGraphService.getFieldStatus(graph, state.currentField) : { status: 'UNKNOWN' };
+
+  let resumeQuestion = targetInfo.label || state.currentField;
+  if (fieldStatus.status === 'CONFLICT') {
+    const conf = fieldStatus.conflict;
+    resumeQuestion = `⚠️ We found conflicting records for ${targetInfo.label || state.currentField}: "${conf?.existingValue?.value || 'record A'}" vs "${conf?.conflictingValue?.value || 'record B'}". Which one is correct?`;
+  } else if (fieldStatus.status === 'CONFIRMATION_REQUIRED') {
+    resumeQuestion = `We found that your ${targetInfo.label || state.currentField} is "${fieldStatus.node?.value}". Could you please confirm if this is correct?`;
+  } else {
+    const targetOptions = targetInfo.options;
+    if (targetOptions) {
+      let optionList = [];
+      if (Array.isArray(targetOptions)) {
+        optionList = targetOptions.map(o => (typeof o === 'object' ? (o.label || o.text || o.value) : o)).filter(l => l && !String(l).includes('Please Select') && l !== 'none');
+      } else if (typeof targetOptions === 'object') {
+        optionList = Object.values(targetOptions).filter(l => l && !String(l).includes('Please Select') && l !== 'none');
+      }
+      if (optionList.length > 0) {
+        resumeQuestion += ` (Choices: ${optionList.slice(0, 10).join(', ')})`;
+      }
+    }
+  }
+
+  const welcomeBack = `Welcome back! Let's continue where you left off.\n\n${resumeQuestion}`;
+  let replyMessage = null;
+  if (conversation) {
+    replyMessage = await Message.create({
+      conversationId: conversation._id,
+      sender: 'AI',
+      content: welcomeBack,
+      metadata: {
+        options: targetInfo.options || null,
+        currentField: state.currentField
+      }
+    });
+  }
+
+  return {
+    state,
+    conversation,
+    isCompleted: false,
+    currentQuestion: replyMessage || { content: welcomeBack },
+    reply: replyMessage || { content: welcomeBack }
+  };
 };

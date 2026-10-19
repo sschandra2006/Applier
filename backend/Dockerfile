@@ -1,12 +1,17 @@
 FROM node:20-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --only=production
+# Copy shared contract package
+COPY shared/ ./shared/
 
-COPY . .
+# Setup backend
+WORKDIR /app/backend
+COPY backend/package*.json ./
+RUN npm ci --omit=dev
+
+COPY backend/ ./
 
 EXPOSE 5000
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

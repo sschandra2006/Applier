@@ -13,6 +13,12 @@ from agents.recovery_agent import RecoveryAgent
 from agents.explanation_agent import ExplanationAgent
 from agents.recommendation_agent import RecommendationAgent
 from agents.knowledge_agent import KnowledgeAgent
+from agents.semantic_understanding_agent import SemanticUnderstandingAgent
+from agents.resume_extraction_agent import ResumeExtractionAgent
+from agents.jd_analyzer import JDAnalyzer
+from agents.profile_matching_engine import ProfileMatchingEngine
+from agents.missing_info_agent import MissingInfoAgent
+from agents.resume_tailoring_agent import ResumeTailoringAgent
 
 import time
 
@@ -28,7 +34,15 @@ class AIOrchestrator:
             "recover_error": RecoveryAgent(),
             "explain_error": ExplanationAgent(),
             "recommend_actions": RecommendationAgent(),
-            "retrieve_knowledge": KnowledgeAgent()
+            "retrieve_knowledge": KnowledgeAgent(),
+            "understand_page": SemanticUnderstandingAgent(),
+            "extract_resume": ResumeExtractionAgent(),
+            "analyze_job_description": JDAnalyzer(),
+            "match_job_requirements": ProfileMatchingEngine(),
+            "generate_gap_questions": MissingInfoAgent(),
+            "manage_missing_info": MissingInfoAgent(),
+            "generate_tailored_resume": ResumeTailoringAgent(),
+            "tailor_resume": ResumeTailoringAgent()
         }
 
     def execute(self, payload: dict) -> dict:
